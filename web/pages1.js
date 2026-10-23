@@ -69,7 +69,7 @@ export async function pageDashboard(el) {
         <div class="stat ${fund.net >= 0 ? 'tone-ok' : 'tone-bad'}"><div class="lbl">${icon('cash')} ${esc(t('stat_fund'))}</div><div class="val">${fmtMoney(fund.net)}</div><div class="sub">${esc(t('t_income'))}: ${fmtMoney(fund.income + fund.misc)} · ${esc(t('t_expenses'))}: ${fmtMoney(fund.expenses)}</div></div>
         <div class="stat ${arrearsTotal > 0 ? 'tone-warn' : ''}"><div class="lbl">${icon('warn')} ${esc(t('stat_arrears'))}</div><div class="val">${fmtMoney(arrearsTotal)}</div><a class="sub" href="#/reports" style="color:var(--muted)">${esc(t('see_all'))} →</a></div>
       </div>
-      <div class="grid" style="grid-template-columns:1fr 1fr;margin-bottom:18px">
+      <div class="dash-2" style="margin-bottom:18px">
         <div class="card"><h3>${esc(t('last_months'))} — ${esc(t('income_vs_expenses'))}</h3>
           <div class="chart-wrap"><canvas id="dashChart"></canvas></div>
           <div class="legend">
@@ -90,7 +90,7 @@ export async function pageDashboard(el) {
             <a class="btn ghost sm" href="#/dues" style="text-decoration:none">${esc(t('nav_dues'))} →</a>
           </div></div>
       </div>
-      <div class="grid" style="grid-template-columns:1fr 1fr">
+      <div class="dash-2">
         <div class="card"><h3>${esc(t('top_arrears'))}</h3>
           <div id="topArrears">${table({
             rows: d.top_arrears, empty: t('none_yet'), cols: [

@@ -193,3 +193,25 @@ table.tbl{width:100%;border-collapse:collapse;font-size:13.5px}
   .topbar .title{font-size:14.5px}
   .stat .val{font-size:19px}
 }
+
+/* ← زر خلفي شفاف لإغلاق الدرج الجانبي على الجوال */
+.drawer-backdrop{position:fixed;inset:0;background:rgba(2,6,23,.4);z-index:59;opacity:0;pointer-events:none;transition:opacity .25s}
+.drawer-backdrop.show{opacity:1;pointer-events:auto}
+@media (min-width: 961px){.drawer-backdrop{display:none}}
+
+/* لصقت تحسين الشاشات الصغيرة والتابلت */
+@media (max-width: 640px){
+  /* منع زوم iOS على تركيز حقل إدخال */
+  input,select,textarea{font-size:16px}
+  .login-card{padding:22px 18px}
+  .login-card h1{font-size:20px}
+  .overlay{padding:18px 8px}
+  .dialog{max-width:none}
+  .d-foot{flex-wrap:wrap}
+  .d-foot .btn{min-height:42px;flex:1;justify-content:center}
+  .content{padding:12px 10px 72px}
+  .tbl-act .btn.sm{padding:6px 10px}
+  #toasts{bottom:calc(16px + env(safe-area-inset-bottom));left:12px;right:12px;max-width:none}
+  .stat-grid{grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+  .kpi-band{grid-template-columns:repeat(2,1fr)}
+}

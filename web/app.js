@@ -88,6 +88,7 @@ function renderShell() {
         </div>
         <div class="nav" id="nav"></div>
       </div>
+      <div class="drawer-backdrop" id="drawerBackdrop"></div>
       <div class="main">
         <div class="topbar">
           <button class="burger" id="burgerBtn">${icon('menu')}</button>
@@ -120,7 +121,16 @@ function renderShell() {
     route(true);
   };
   const burger = $app.querySelector('#burgerBtn');
-  if (burger) burger.onclick = () => $app.querySelector('#sidebar').classList.toggle('open');
+  const backdrop = $app.querySelector('#drawerBackdrop');
+  const syncDrawer = () => {
+    const open = $app.querySelector('#sidebar').classList.contains('open') && window.innerWidth <= 960;
+    if (backdrop) backdrop.classList.toggle('show', open);
+  };
+  if (burger) burger.onclick = () => { $app.querySelector('#sidebar').classList.toggle('open'); syncDrawer(); };
+  if (backdrop) {
+    backdrop.onclick = () => { $app.querySelector('#sidebar').classList.remove('open'); syncDrawer(); };
+    window.addEventListener('resize', syncDrawer);
+  }
   const logout = $app.querySelector('#logoutBtn');
   if (logout) logout.onclick = () => { clearSession(); location.hash = '#/login'; };
   const scopeSel = $app.querySelector('#scopeSel');
@@ -205,6 +215,8 @@ async function route(force = false) {
   // إغلاق الشريط على الجوال
   const sb = $app.querySelector('#sidebar');
   if (sb) sb.classList.remove('open');
+  const bk = $app.querySelector('#drawerBackdrop');
+  if (bk) bk.classList.remove('show');
   const content = $app.querySelector('#content');
   if (!content) return;
   content.innerHTML = spin();

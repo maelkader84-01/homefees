@@ -2,7 +2,7 @@
    - API ظٹط¨ظ‚ظ‰ ط¯ط§ط¦ظ…ط§ظ‹ ظ…ظ† ط§ظ„ط´ط¨ظƒط© (ط¨ظٹط§ظ†ط§طھ ط­ظٹط© ظˆظ„ط§ طھظڈط®ط²ظژظ‘ظ†)
    - ط§ظ„ظˆط§ط¬ظ‡ط© ط§ظ„ط«ط§ط¨طھط©: ط£ظˆظ„ طھط®ط²ظٹظ† ط«ظ… طھط­ط¯ظٹط« طھظ„ظ‚ط§ط¦ظٹ ظپظٹ ط§ظ„ط®ظ„ظپظٹط© */
 'use strict';
-const CACHE = 'homefees-shell-v4';
+const CACHE = 'homefees-shell-v5';
 const SHELL = [
   '/', '/index.html', '/manifest.json',
   '/styles.css', '/app.js', '/core.js', '/i18n.js',

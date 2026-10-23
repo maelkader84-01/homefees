@@ -184,8 +184,7 @@ table.tbl{width:100%;border-collapse:collapse;font-size:13.5px}
   .tbl td{display:flex;justify-content:space-between;align-items:center;gap:10px;border:0;border-bottom:1px dashed var(--line);padding:8px 2px;font-size:13px;word-break:break-word}
   .tbl tr td:last-child{border-bottom:0}
   .tbl td .badge{margin-inline-start:0}
-  .tbl .actions{flex-direction:column;align-items:stretch;gap:6px}
-}
+  .tbl .actions{flex-wrap:wrap;justify-content:center;gap:6px}
 /* شاشات ضيقة جدًا: بطاقة مفردة كي لا تُختنق */
 @media screen and (max-width: 360px){
   .tbl tbody{grid-template-columns:1fr}

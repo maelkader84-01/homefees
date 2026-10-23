@@ -703,7 +703,9 @@ function buildApp() {
     } catch (e) { bad(res, e.key || 'bad_request'); }
   });
   app.patch('/api/expense-categories/:id', (req, res) => {
-    const c = db.get('SELECT * FROM expense_categories WHERE id = ?', [toInt(req.params.id)]);
+    let c;
+    try { c = db.get('SELECT * FROM expense_categories WHERE id = ?', [toInt(req.params.id)]); }
+    catch (e) { console.error('[homefees] cat patch read failed:', e); return bad(res, 'busy_try_again', 503); }
     if (!c) return bad(res, 'not_found', 404);
     try {
       const name = strField(req.body.name, 'name', { required: true, max: 120 });
@@ -714,12 +716,21 @@ function buildApp() {
     } catch (e) { bad(res, e.key || 'bad_request'); }
   });
   app.delete('/api/expense-categories/:id', (req, res) => {
-    const c = db.get('SELECT * FROM expense_categories WHERE id = ?', [toInt(req.params.id)]);
-    if (!c) return bad(res, 'not_found', 404);
-    if (Number(c.usage || 0) > 0 || Number(db.get('SELECT COUNT(*) AS n FROM expenses WHERE category_id = ?', [c.id]).n) > 0)
-      return bad(res, 'category_in_use', 409);
-    db.run('DELETE FROM expense_categories WHERE id = ?', [c.id]);
-    res.json({ ok: true });
+    let c, used;
+    try {
+      c = db.get('SELECT * FROM expense_categories WHERE id = ?', [toInt(req.params.id)]);
+      if (!c) return bad(res, 'not_found', 404);
+      used = Number(db.get('SELECT COUNT(*) AS n FROM expenses WHERE category_id = ?', [c.id]).n);
+    } catch (e) { console.error('[homefees] cat delete read failed:', e); return bad(res, 'busy_try_again', 503); }
+    if (used > 0) return bad(res, 'category_in_use', 409);
+    try {
+      db.run('DELETE FROM expense_categories WHERE id = ?', [c.id]);
+      res.json({ ok: true });
+    } catch (e) {
+      console.error('[homefees] cat delete failed:', e);
+      const busy = /BUSY|locked/i.test(String(e.message));
+      bad(res, busy ? 'busy_try_again' : 'bad_request', busy ? 503 : 400);
+    }
   });
   app.get('/api/expenses', (req, res) => {
     const conditions = [], vals = [];
@@ -773,10 +784,18 @@ function buildApp() {
     } catch (e) { bad(res, e.key || 'bad_request'); }
   });
   app.delete('/api/expenses/:id', (req, res) => {
-    const e0 = db.get('SELECT * FROM expenses WHERE id = ?', [toInt(req.params.id)]);
+    let e0;
+    try { e0 = db.get('SELECT * FROM expenses WHERE id = ?', [toInt(req.params.id)]); }
+    catch (err) { console.error('[homefees] expense delete read failed:', err); return bad(res, 'busy_try_again', 503); }
     if (!e0) return bad(res, 'not_found', 404);
-    db.run('DELETE FROM expenses WHERE id = ?', [e0.id]);
-    res.json({ ok: true });
+    try {
+      db.run('DELETE FROM expenses WHERE id = ?', [e0.id]);
+      res.json({ ok: true });
+    } catch (err) {
+      console.error('[homefees] expense delete failed:', err);
+      const busy = /BUSY|locked/i.test(String(err.message));
+      bad(res, busy ? 'busy_try_again' : 'bad_request', busy ? 503 : 400);
+    }
   });
 
   /* --- التذكيرات --- */

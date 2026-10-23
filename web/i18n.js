@@ -89,6 +89,7 @@ const AR = {
   new_category: 'تصنيف جديد', categories: 'التصنيفات', no_expenses: 'لا توجد مصروفات في النطاق',
   manage_categories: 'إدارة التصنيفات', expected: 'المستقد',
   cats_manage: 'بنود المصروفات', rename: 'إعادة تسمية', no_categories: 'لا بنود بعد — أضف أول بند', cat_in_use: 'هذا البند مرتبط بمصروفات مسجلة — لا يمكن حذفه',
+  busy_try_again: 'قاعدة البيانات مشغولة لحظيًا — أعد المحاولة بعد ثوانٍ',
   // تذكيرات
   reminders_c: 'التذكيرات', new_reminder: 'تذكير جديد', due_on: 'تاريخ الاستحقاق', repeat: 'التكرار',
   repeat_none: 'مرة واحدة', repeat_monthly: 'شهري', repeat_yearly: 'سُنوي', done: 'منتهي', mark_done: 'تم التنفيذ',
@@ -218,6 +219,7 @@ const EN = {
   new_category: 'New category', categories: 'Categories', no_expenses: 'No expenses in this filter',
   manage_categories: 'Manage categories', expected: 'Billed',
   cats_manage: 'Expense items', rename: 'Rename', no_categories: 'No items yet — add the first one', cat_in_use: 'This item is linked to recorded expenses — cannot be deleted',
+  busy_try_again: 'Database is momentarily busy — please retry shortly',
   reminders_c: 'Reminders', new_reminder: 'New reminder', due_on: 'Due date', repeat: 'Repeat',
   repeat_none: 'Once', repeat_monthly: 'Monthly', repeat_yearly: 'Yearly', done: 'Done', mark_done: 'Mark done',
   mark_open: 'Reopen', overdue: 'Overdue', today: 'Today', upcoming: 'Upcoming', all_buildings: 'General (all buildings)',

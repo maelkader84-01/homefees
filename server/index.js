@@ -53,6 +53,21 @@ function strField(v, name, { required = false, max = 200 } = {}) {
   return s.slice(0, max);
 }
 
+/* شبكة أمان: نسخة احتياطية قبل أي حذف كبير — تُكتب إلى data/backups قبل التنفيذ */
+function preDeleteBackup(tag) {
+  try {
+    const dir = path.join(path.dirname(db.DB_PATH), 'backups');
+    fs.mkdirSync(dir, { recursive: true });
+    const stamp = new Date().toISOString().slice(0, 19).replace(/[T:]/g, '-');
+    const file = path.join(dir, `pre-delete-${tag}-${stamp}.db`);
+    db.run('VACUUM INTO ?', [file]);
+    return file;
+  } catch (e) {
+    console.error('[homefees] pre-delete backup failed:', e);
+    return null;
+  }
+}
+
 /* ---------- التهيئة ---------- */
 function ensureAdmin() {
   const c = Number(db.get('SELECT COUNT(*) AS c FROM users').c);
@@ -263,6 +278,7 @@ function buildApp() {
     if (!b) return bad(res, 'not_found', 404);
     const units = Number(db.get('SELECT COUNT(*) AS c FROM units WHERE building_id = ?', [id]).c);
     if (units > 0 && req.query.force !== '1') return bad(res, 'building_not_empty', 409);
+    preDeleteBackup(`building-${id}`);
     db.withTransaction(() => {
       const tables = ['payments', 'invoices', 'misc_income', 'expenses', 'reminders', 'rates'];
       for (const t of tables) db.run(`DELETE FROM ${t} WHERE building_id = ?`, [id]);
@@ -464,6 +480,27 @@ function buildApp() {
     if (used) return bad(res, 'rate_in_use', 409);
     db.run('DELETE FROM rates WHERE id = ?', [id]);
     res.json({ ok: true });
+  });
+
+  /* حذف متقدم بند مُستعمل: يمحو فواتيره غير المسددة، والمسددة تبقى سجلة (بند محذوف) */
+  app.post('/api/rates/:id/force-delete', (req, res) => {
+    const id = toInt(req.params.id);
+    const r0 = db.get('SELECT * FROM rates WHERE id = ?', [id]);
+    if (!r0) return bad(res, 'not_found', 404);
+    preDeleteBackup(`rate-${id}`);
+    try {
+      const deletedInvoices = db.withTransaction(() => {
+        const unpaid = db.run(`
+          DELETE FROM invoices WHERE rate_id = ? AND COALESCE(
+            (SELECT SUM(amount) FROM payments p WHERE p.invoice_id = invoices.id), 0) = 0`, [id]);
+        db.run('DELETE FROM rates WHERE id = ?', [id]);
+        return Number(unpaid.changes);
+      });
+      res.json({ ok: true, deleted_unpaid_invoices: deletedInvoices });
+    } catch (e) {
+      console.error('[homefees] force-delete failed:', e);
+      bad(res, 'delete_failed', 500);
+    }
   });
 
   /* --- الرسوم الشهرية (توليد / الفواتير) --- */

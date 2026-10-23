@@ -1,6 +1,6 @@
 'use strict';
 /* pages1.js — لوحة المعلومات، المباني، الوحدات، السكان، بنود الرسوم */
-import { S, api, h, esc, t, icon, fmtMoney, fmtNum, fmtDate, fmtMonth, toast, toastErr, confirmDlg, formModal, table, badge, barChart, scopeQ, LOGO } from './core.js';
+import { S, api, h, esc, t, icon, fmtMoney, fmtNum, fmtDate, fmtMonth, toast, toastErr, confirmDlg, choiceDlg, formModal, table, badge, barChart, scopeQ, LOGO } from './core.js';
 
 export function spin() { return '<div class="boot-splash" style="min-height:200px"><div class="spin"></div></div>'; }
 export function refresh() { window.dispatchEvent(new Event('hm_refresh')); }
@@ -393,8 +393,29 @@ export async function pageRates(el) {
     el.querySelectorAll('[data-del]').forEach(btn => btn.onclick = async () => {
       const r = rates.find(x => String(x.id) === btn.dataset.del);
       if (!(await confirmDlg(t('confirm_delete')))) return;
-      try { await api.del('/api/rates/' + r.id); toast(t('saved')); refresh(); }
-      catch (e) { if (e.key === 'rate_in_use') toast(t('rate_in_use'), 'err'); else toastErr(e); }
+      try {
+        await api.del('/api/rates/' + r.id);
+        toast(t('saved')); refresh();
+      } catch (e) {
+        if (e.key === 'rate_in_use') {
+          // البند له فواتير مُنشأة — عرض خيارات محاسبية آمنة
+          const choice = await choiceDlg(t('rate_in_use_choice'), [
+            { key: 'stop', label: t('rate_stop_only'), cls: 'ghost' },
+            { key: 'force', label: t('rate_force_delete'), cls: 'danger' }
+          ], { title: t('rate_used_title') });
+          if (choice === 'stop') {
+            try { await api.patch('/api/rates/' + r.id, { active: 0 }); toast(t('rate_stopped')); refresh(); } catch (e2) { toastErr(e2); }
+          } else if (choice === 'force') {
+            if (!(await confirmDlg(t('rate_force_confirm')))) return;
+            try {
+              const rr = await api.post('/api/rates/' + r.id + '/force-delete');
+              toast(t('rate_force_done') + (rr?.deleted_unpaid_invoices ? ' ' + rr.deleted_unpaid_invoices : ''));
+              refresh();
+            } catch (e2) { toastErr(e2); }
+          }
+        }
+        else toastErr(e);
+      }
     });
   } catch (e) { toastErr(e); }
 }

@@ -138,6 +138,27 @@ export function confirmDlg(msg, { okLabel, danger = true } = {}) {
   });
 }
 
+/* نافذة اختيار (زرين أو أكثر) — ترجع مفتاح الزر أو null */
+export function choiceDlg(msg, options, { title, okClass = 'danger' } = {}) {
+  return new Promise(resolve => {
+    const buttons = options.map(o =>
+      `<button class="btn ${o.cls || okClass}" data-a="${o.key}">${esc(o.label)}</button>`).join('');
+    const ov = h(`<div class="overlay" style="z-index:200"><div class="dialog" style="max-width:480px">
+      ${title ? `<div class="d-head"><h3>${esc(title)}</h3></div>` : ''}
+      <div class="d-body" style="padding-top:18px;font-size:14px">${esc(msg)}</div>
+      <div class="d-foot" style="flex-wrap:wrap;justify-content:flex-start">
+        ${buttons}
+        <button class="btn ghost" data-a="__cancel">${t('cancel')}</button>
+      </div></div></div>`);
+    document.getElementById('modal-root').appendChild(ov);
+    ov.addEventListener('click', e => {
+      if (e.target === ov) { ov.remove(); resolve(null); }
+      const a = e.target.closest('[data-a]')?.dataset.a;
+      if (a) { ov.remove(); resolve(a === '__cancel' ? null : a); }
+    });
+  });
+}
+
 /* form modal */
 export function formModal({ title, fields, submitLabel, wide = false }) {
   return new Promise(resolve => {

@@ -30,6 +30,8 @@ input,select,textarea{font-family:inherit;font-size:14px}
 .content{padding:20px 24px 56px;max-width:1280px;width:100%;margin-inline:auto}
 
 .brand{display:flex;align-items:center;gap:10px;padding:18px 18px 14px}
+.drawer-close{display:none;align-items:center;justify-content:center;background:none;border:0;color:#94a3b8;font-size:17px;cursor:pointer;position:absolute;top:14px;inset-inline-end:14px;width:36px;height:36px;border-radius:10px;z-index:70}
+.drawer-close:hover{background:rgba(255,255,255,.08);color:#fff}
 .brand .logo{width:38px;height:38px;flex-shrink:0}
 .brand .bname{font-size:19px;font-weight:700;color:#fff;direction:ltr}
 .brand .btag{font-size:11px;color:#7c8db0}
@@ -183,8 +185,14 @@ table.tbl{width:100%;border-collapse:collapse;font-size:13.5px}
 
 /* responsive */
 @media (max-width: 960px){
-  .sidebar{position:fixed;z-index:60;transform:translateX(100%);transition:transform .25s;box-shadow:0 0 60px rgba(0,0,0,.4)}
-  [dir="ltr"] .sidebar{transform:translateX(-100%)}
+  .sidebar{
+    position:fixed;top:0;bottom:0;right:0;z-index:60;
+    width:min(84vw,300px);max-width:84vw;
+    transform:translateX(105%);
+    transition:transform .28s cubic-bezier(.22,.61,.36,1);
+    box-shadow:0 0 60px rgba(0,0,0,.45);
+  }
+  [dir="ltr"] .sidebar{right:auto;left:0;transform:translateX(-105%)}
   .sidebar.open{transform:translateX(0) !important}
   .burger{display:flex;align-items:center}
   .form-row{grid-template-columns:1fr}
@@ -192,6 +200,10 @@ table.tbl{width:100%;border-collapse:collapse;font-size:13.5px}
   .topbar{padding:10px 14px}
   .topbar .title{font-size:14.5px}
   .stat .val{font-size:19px}
+  /* القائمة: عناصر مريحة لللمس مع أيقونات واضحة */
+  .nav a{padding:12px 14px;font-size:14.5px;gap:12px;margin:2px 8px;border-radius:12px}
+  .nav .sec{padding:14px 16px 6px;font-size:11px}
+  .drawer-close{display:flex}
 }
 
 /* ← زر خلفي شفاف لإغلاق الدرج الجانبي على الجوال */

@@ -82,6 +82,7 @@ function renderShell() {
   $app.innerHTML = `
     <div class="layout">
       <div class="sidebar" id="sidebar">
+        <button class="drawer-close" id="drawerClose" aria-label="close">✕</button>
         <div class="brand">
           <div class="logo">${LOGO}</div>
           <div><div class="bname" style="direction:ltr">${S.lang === 'ar' ? 'هوم فيز HomeFees' : 'HomeFees'}</div><div class="btag">${esc(t('tagline'))}</div></div>
@@ -127,6 +128,8 @@ function renderShell() {
     if (backdrop) backdrop.classList.toggle('show', open);
   };
   if (burger) burger.onclick = () => { $app.querySelector('#sidebar').classList.toggle('open'); syncDrawer(); };
+  const closeBtn = $app.querySelector('#drawerClose');
+  if (closeBtn) closeBtn.onclick = () => { $app.querySelector('#sidebar').classList.remove('open'); syncDrawer(); };
   if (backdrop) {
     backdrop.onclick = () => { $app.querySelector('#sidebar').classList.remove('open'); syncDrawer(); };
     window.addEventListener('resize', syncDrawer);

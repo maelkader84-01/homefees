@@ -222,7 +222,10 @@ async function route(force = false) {
   content.innerHTML = spin();
   try {
     await def.fn(content);
-  } catch (e) { toastErr(e); content.innerHTML = ''; }
+  } catch (e) {
+    toastErr(e);
+    content.innerHTML = `<div class="empty-note" style="margin-top:24px"><div class="big">⚠️</div>${esc(t('page_error'))}<br><br><button class="btn sm" onclick="location.reload()">${esc(t('retry'))}</button></div>`;
+  }
   updateAlertsBadge();
 }
 

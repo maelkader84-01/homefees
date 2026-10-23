@@ -256,8 +256,9 @@ export function barChart(canvas, labels, series) {
   const plotW = w - pad.l - pad.r, plotH = h - pad.t - pad.b;
   const n = labels.length;
   const maxV = Math.max(1, ...series.flatMap(s => s.values));
-  const groupW = plotW / n;
-  const barW = Math.min(26, (groupW - 12) / series.length);
+  const groupW = plotW / Math.max(n, 1);
+  const barW = Math.max(0, Math.min(26, (groupW - 12) / Math.max(series.length, 1)));
+  const canBars = barW > 0.5 && plotH > 0;
   const labelsArr = rtl ? [...labels].reverse() : labels;
   const seriesVals = rtl ? series.map(s => ({ ...s, values: [...s.values].reverse() })) : series;
   // lines
@@ -271,15 +272,16 @@ export function barChart(canvas, labels, series) {
     if (val > 0.01) ctx.fillText(val.toFixed(0) + '', pad.l + 2, y - 3);
   }
   labelsArr.forEach((lab, gi) => {
-    seriesVals.forEach((s, si) => {
+    if (canBars) seriesVals.forEach((s, si) => {
       const x = pad.l + groupW * gi + groupW / 2 - (series.length * barW) / 2 + si * barW + 2;
       const bh = (s.values[gi] / maxV) * plotH;
       ctx.fillStyle = s.color;
-      const r = Math.min(4, barW / 2, Math.max(bh / 2, 0.01));
+      const r = Math.max(0, Math.min(4, barW / 2, bh / 2));
       const y = pad.t + plotH - bh;
       ctx.beginPath();
       ctx.moveTo(x, pad.t + plotH);
-      ctx.lineTo(x, y + r); ctx.arc(x + r, y + r, r, Math.PI, 0);
+      ctx.lineTo(x, y + r);
+      if (r > 0) ctx.arc(x + r, y + r, r, Math.PI, 0);
       ctx.lineTo(x + barW, pad.t + plotH); ctx.closePath(); ctx.fill();
     });
     ctx.fillStyle = '#64748b'; ctx.font = '11px Segoe UI'; ctx.textAlign = 'center';
@@ -291,7 +293,15 @@ export function donut(canvas, items) {
   if (!canvas) return;
   const { ctx, w, h } = prepCanvas(canvas);
   ctx.clearRect(0, 0, w, h);
-  const cx = w / 2, cy = h / 2, R = Math.min(w, h) / 2 - 6, r = R * 0.58;
+  const cx = w / 2, cy = h / 2;
+  const R = Math.min(w, h) / 2 - 6;
+  // على الشاشات الضيقة جداً لا ترسم دائرة — خانة نصية بدل الانهيار
+  if (R < 4 || (w && w < 14) || (h && h < 14)) {
+    ctx.fillStyle = '#94a3b8'; ctx.font = '12px Segoe UI'; ctx.textAlign = 'center';
+    ctx.fillText('—', Math.max(cx, 12), Math.max(cy, 14));
+    return;
+  }
+  const r = R * 0.58;
   const total = items.reduce((s, i) => s + i.value, 0);
   if (!total) { ctx.fillStyle = '#94a3b8'; ctx.font = '12px Segoe UI'; ctx.textAlign = 'center'; ctx.fillText('—', cx, cy); return; }
   let a0 = -Math.PI / 2;

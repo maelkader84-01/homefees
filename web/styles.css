@@ -171,6 +171,24 @@ table.tbl{width:100%;border-collapse:collapse;font-size:13.5px}
 .kpi .v{font-size:19px;font-weight:800;margin-top:2px}
 .kpi .v.pos{color:var(--ok)} .kpi .v.neg{color:var(--danger)}
 
+/* أنفوجرافيك الجداول على الشاشات الصغيرة: كل سجل بطاقة والصفوف تحت بعض */
+@media screen and (max-width: 640px){
+  .tbl{display:block}
+  .tbl thead{display:none}
+  .tbl tbody{display:block}
+  .tbl tr{display:block;background:var(--card);border:1px solid var(--line);border-radius:14px;margin:10px 0;padding:4px 12px;box-shadow:var(--shadow)}
+  .tbl tr:nth-child(even){background:#fbfdff}
+  .tbl td{display:flex;justify-content:space-between;align-items:center;gap:10px;border:0;border-bottom:1px dashed var(--line);padding:8px 2px}
+  .tbl tr td:last-child{border-bottom:0}
+  .tbl td .badge{margin-inline-start:0}
+}
+
+/* بطاقات الأرقام تتراص مفردة على الشاشات الأصغر لوضوح أكبر */
+@media screen and (max-width: 480px){
+  .stat-grid{grid-template-columns:1fr}
+  .kpi-band{grid-template-columns:1fr}
+}
+
 .empty-note{background:#f8fafc;border:1.5px dashed var(--line);border-radius:14px;padding:26px;text-align:center;color:var(--muted)}
 .empty-note .big{font-size:30px;margin-bottom:8px}
 

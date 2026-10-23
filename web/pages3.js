@@ -113,12 +113,16 @@ export async function pageReports(el, tab = 'summary') {
       const rows = await api.get('/api/reports/by-category?' + (scopeQ() ? scopeQ() + '&' : '') + `from=${from}&to=${to}`);
       if (!rows.length) return `<div class="empty-note">${esc(t('no_reports_data'))}</div>`;
       const total = rows.reduce((s, r) => s + Number(r.total), 0);
-      const html = `<div style="display:grid;grid-template-columns:260px 1fr;gap:20px;align-items:center">
-        <div><div class="chart-wrap"><canvas id="catDonut" style="height:230px;width:230px;margin:auto"></canvas></div></div>
-        <div>
+      const colors = ['#0d9488', '#0ea5e9', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#10b981', '#64748b'];
+      const html = `<div class="cat-grid">
+        <div><canvas id="catDonut" class="cat-canvas"></canvas></div>
+        <div style="width:100%">
           ${table({
           rows, cols: [
-            { label: t('category'), get: r => `<span class="badge soft">${esc(r.category)}</span>` },
+            { label: t('category'), get: r => {
+              const c = colors[rows.indexOf(r) % colors.length];
+              return `<span class="badge" style="background:${c}1f;color:${c}">${esc(r.category)}</span>`;
+            } },
             { label: t('count_units'), cls: 'num', get: r => fmtNum(r.cnt) },
             { label: '%', cls: 'num', get: r => fmtNum(Number(r.total) / total * 100, 1) + '%' },
             { label: t('amount'), cls: 'num', get: r => `<b>${fmtMoney(r.total)}</b>` }
@@ -127,7 +131,7 @@ export async function pageReports(el, tab = 'summary') {
         </div></div>`;
       setTimeout(() => {
         const cv = el.querySelector('#catDonut');
-        if (cv) donut(cv, rows.slice(0, 8).map((r, i) => ({ value: Number(r.total), color: ['#0d9488', '#0ea5e9', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#10b981', '#64748b'][i] || '#64748b' })));
+        if (cv) donut(cv, rows.slice(0, 8).map((r, i) => ({ value: Number(r.total), color: colors[i] || '#64748b' })));
       }, 30);
       return html;
     }

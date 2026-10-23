@@ -152,6 +152,15 @@ table.tbl{width:100%;border-collapse:collapse;font-size:13.5px}
 .legend .li{display:flex;align-items:center;gap:6px}
 .legend .sw{width:11px;height:11px;border-radius:3px}
 
+/* تصنيفات المصروفات: دونات + جدول جنبًا إلى جنب */
+.cat-grid{display:grid;grid-template-columns:260px 1fr;gap:20px;align-items:center}
+.cat-canvas{width:230px;height:230px;max-width:100%;margin:auto;display:block}
+@media (max-width: 640px){
+  /* على الجوال: دونات صغير ثم الجدول كامل العرض تحته */
+  .cat-grid{grid-template-columns:1fr;gap:10px;justify-items:center}
+  .cat-canvas{width:150px;height:150px}
+}
+
 /* login */
 .login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#0b1220 0%,#134e4a 100%);padding:24px}
 .login-card{background:var(--card);border-radius:20px;box-shadow:0 30px 80px rgba(0,0,0,.4);width:100%;max-width:420px;padding:34px}

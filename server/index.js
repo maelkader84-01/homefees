@@ -702,6 +702,17 @@ function buildApp() {
       res.status(201).json({ id: r.lastInsertRowid });
     } catch (e) { bad(res, e.key || 'bad_request'); }
   });
+  app.patch('/api/expense-categories/:id', (req, res) => {
+    const c = db.get('SELECT * FROM expense_categories WHERE id = ?', [toInt(req.params.id)]);
+    if (!c) return bad(res, 'not_found', 404);
+    try {
+      const name = strField(req.body.name, 'name', { required: true, max: 120 });
+      const dup = db.get('SELECT id FROM expense_categories WHERE name = ? AND id != ?', [name, c.id]);
+      if (dup) return bad(res, 'exists', 409);
+      db.run('UPDATE expense_categories SET name = ? WHERE id = ?', [name, c.id]);
+      res.json({ ok: true });
+    } catch (e) { bad(res, e.key || 'bad_request'); }
+  });
   app.delete('/api/expense-categories/:id', (req, res) => {
     const c = db.get('SELECT * FROM expense_categories WHERE id = ?', [toInt(req.params.id)]);
     if (!c) return bad(res, 'not_found', 404);
@@ -743,8 +754,14 @@ function buildApp() {
     const e0 = db.get('SELECT * FROM expenses WHERE id = ?', [toInt(req.params.id)]);
     if (!e0) return bad(res, 'not_found', 404);
     try {
-      db.run(`UPDATE expenses SET category_id = ?, description = ?, vendor = ?, amount = ?, spent_on = ?, allocate = ?, receipt_no = ?, note = ? WHERE id = ?`,
-        [req.body.category_id !== undefined ? (req.body.category_id ? toInt(req.body.category_id) : null) : e0.category_id,
+      let building_id = e0.building_id;
+      if (req.body.building_id !== undefined) {
+        building_id = numField(req.body.building_id, 'building_id');
+        if (!db.get('SELECT id FROM buildings WHERE id = ?', [building_id])) return bad(res, 'bad_building');
+      }
+      db.run(`UPDATE expenses SET building_id = ?, category_id = ?, description = ?, vendor = ?, amount = ?, spent_on = ?, allocate = ?, receipt_no = ?, note = ? WHERE id = ?`,
+        [building_id,
+        req.body.category_id !== undefined ? (req.body.category_id ? toInt(req.body.category_id) : null) : e0.category_id,
         req.body.description !== undefined ? strField(req.body.description, 'description', { max: 200 }) : e0.description,
         req.body.vendor !== undefined ? strField(req.body.vendor, 'vendor', { max: 120 }) : e0.vendor,
         req.body.amount !== undefined ? numField(req.body.amount, 'amount') : e0.amount,

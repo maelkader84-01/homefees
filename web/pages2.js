@@ -261,11 +261,7 @@ export async function pageExpenses(el) {
       })}
       </div>`;
     el.querySelector('#addE').onclick = () => expenseForm(null, deps);
-    el.querySelector('#addCat').onclick = async () => {
-      const v = await formModal({ title: t('new_category'), fields: [{ name: 'name', label: t('name'), required: true }] });
-      if (!v) return;
-      try { await api.post('/api/expense-categories', v); toast(t('saved')); refresh(); } catch (e) { toastErr(e); }
-    };
+    el.querySelector('#addCat').onclick = () => manageCategories();
     el.querySelectorAll('[data-edit]').forEach(btn => btn.onclick = () => expenseForm(expenses.find(r => String(r.id) === btn.dataset.edit), deps));
     el.querySelectorAll('[data-del]').forEach(btn => btn.onclick = async () => {
       const r = expenses.find(x => String(x.id) === btn.dataset.del);
@@ -274,6 +270,54 @@ export async function pageExpenses(el) {
     });
   } catch (e) { toastErr(e); }
 }
+/* نافذة إدارة بنود المصروفات (التصنيفات): إضافة وإعادة تسمية وحذف */
+async function manageCategories() {
+  let ov;
+  const open = async () => {
+    if (ov) ov.remove();
+    let cats = [];
+    try { cats = await api.get('/api/expense-categories'); } catch (e) { toastErr(e); return; }
+    ov = h(`<div class="overlay" style="z-index:200"><div class="dialog" style="max-width:440px">
+      <div class="d-head"><h3>${esc(t('cats_manage'))}</h3></div>
+      <div class="d-body" style="max-height:320px;overflow:auto;padding:6px 16px">
+        ${cats.length ? cats.map(c => `<div class="h-row" style="padding:9px 2px;border-bottom:1px dashed var(--line)">
+          <span class="badge soft">${esc(c.name)}</span>
+          <span style="color:var(--muted);font-size:12px">${fmtNum(c.usage)} ${esc(t('expenses_c'))}</span>
+          <div class="grow"></div>
+          <button class="btn ghost sm" data-ren="${c.id}" data-name="${esc(c.name)}">${icon('edit')}</button>
+          <button class="btn ghost sm" data-delc="${c.id}" style="color:var(--danger)">${icon('trash')}</button>
+        </div>`).join('') : `<div style="color:var(--muted);padding:14px 4px">${esc(t('no_categories'))}</div>`}
+      </div>
+      <div class="d-foot">
+        <button class="btn" data-add>${icon('plus')} ${esc(t('new_category'))}</button>
+        <button class="btn ghost" data-x>${esc(t('close'))}</button>
+      </div>
+    </div></div>`);
+    document.getElementById('modal-root').appendChild(ov);
+    ov.addEventListener('click', async e => {
+      if (e.target === ov) { ov.remove(); refresh(); return; }
+      const ren = e.target.closest('[data-ren]'), delc = e.target.closest('[data-delc]'), add = e.target.closest('[data-add]');
+      if (e.target.closest('[data-x]')) { ov.remove(); refresh(); return; }
+      if (ren) {
+        const v = await formModal({ title: t('rename'), fields: [{ name: 'name', label: t('name'), required: true, value: ren.dataset.name }] });
+        if (!v) return;
+        try { await api.patch('/api/expense-categories/' + ren.dataset.ren, v); toast(t('saved')); open(); } catch (e2) { toastErr(e2); }
+      }
+      if (delc) {
+        if (!(await confirmDlg(t('confirm_delete')))) return;
+        try { await api.del('/api/expense-categories/' + delc.dataset.delc); toast(t('saved')); open(); }
+        catch (e2) { if (e2.key === 'category_in_use') toast(t('cat_in_use'), 'err'); else toastErr(e2); }
+      }
+      if (add) {
+        const v = await formModal({ title: t('new_category'), fields: [{ name: 'name', label: t('name'), required: true }] });
+        if (!v) return;
+        try { await api.post('/api/expense-categories', v); toast(t('saved')); open(); } catch (e2) { toastErr(e2); }
+      }
+    });
+  };
+  await open();
+}
+
 async function expenseForm(r, depos) {
   await buildingOptions();
   const v = await formModal({

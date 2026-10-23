@@ -40,9 +40,9 @@ function renderLogin() {
         </div>
         <form id="loginForm" class="form">
           <div class="field"><label>${esc(t('login_user'))}</label>
-            <input class="input" name="username" autocomplete="username" required></div>
+            <input class="input" name="username" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" inputmode="latin" required></div>
           <div class="field"><label>${esc(t('login_pass'))}</label>
-            <input class="input" type="password" name="password" autocomplete="current-password" required></div>
+            <input class="input" type="password" name="password" autocomplete="current-password" autocapitalize="none" autocorrect="off" spellcheck="false" required></div>
           <button class="btn" style="width:100%;justify-content:center;margin-top:6px" type="submit">${esc(t('login_btn'))}</button>
         </form>
         <div style="display:flex;justify-content:center;margin-top:14px">

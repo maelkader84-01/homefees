@@ -1,5 +1,5 @@
-appId: com.homina.app
-productName: Homina
+appId: com.homita.app
+productName: Homita
 directories:
   output: dist
   buildResources: build
@@ -20,4 +20,4 @@ win:
   target:
     - target: portable
       arch: [x64]
-  artifactName: Homina-Portable-${version}.exe
+  artifactName: Homita-Portable-${version}.exe

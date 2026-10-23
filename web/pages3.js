@@ -104,7 +104,7 @@ export async function pageReports(el, tab = 'summary') {
         { label: t('month_net'), color: '#f59e0b', values: rep.rows.map(r => r.net) }
       ]);
       const csv = el.querySelector('#repCsv');
-      if (csv) csv.onclick = () => downloadCSV(`homina-report-${from}_${to}.csv`,
+      if (csv) csv.onclick = () => downloadCSV(`homita-report-${from}_${to}.csv`,
         ['month', 'income', 'misc', 'expenses', 'net', 'cumulative'],
         rep.rows.map(r => [fmtMonth(r.month), r.income / 100, r.misc / 100, r.expenses / 100, r.net / 100, r.cumulative / 100]));
     }
@@ -153,7 +153,7 @@ export async function pageReports(el, tab = 'summary') {
       })}
         <div style="margin-top:10px;text-align:end"><button class="btn ghost sm" id="arrCsv">${icon('download')} ${esc(t('export_csv'))}</button></div>`;
       const csv = el.querySelector('#arrCsv');
-      if (csv) csv.onclick = () => downloadCSV(`homina-arrears-${todayISO()}.csv`,
+      if (csv) csv.onclick = () => downloadCSV(`homita-arrears-${todayISO()}.csv`,
         ['unit', 'building', 'resident', 'phone', 'oldest_unpaid', 'invoiced', 'expenses_share', 'paid', 'balance'],
         rows.filter(r => Number(r.balance) > 0).map(r => [r.code, r.building_name, r.resident_name, r.resident_phone, r.oldest_unpaid, r.invoiced / 100, r.expenses_share / 100, r.paid / 100, r.balance / 100]));
     }

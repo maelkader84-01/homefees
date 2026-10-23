@@ -1,8 +1,8 @@
 {
   "name": "homina",
-  "productName": "Homina",
+  "productName": "Homita",
   "version": "1.0.0",
-  "description": "هومينا — إدارة رسوم المبنى والمصروفات وسجل السكان والتقارير | Building fees, expenses, residents & reports",
+  "description": "هوميتا — إدارة رسوم المبنى والمصروفات وسجل السكان والتقارير | Building fees, expenses, residents & reports",
   "license": "MIT",
   "private": true,
   "main": "electron/main.js",

@@ -1,14 +1,23 @@
 'use strict';
 /**
  * main.js — نافذة سطح المكتب (Electron)
- * يشغّل خادم هومينا محلياً ويفتح النافذة عليه.
+ * يشغّل خادم هوميتا محلياً ويفتح النافذة عليه.
  */
 const { app, BrowserWindow, Menu, shell, dialog } = require('electron');
 const path = require('path');
+const fs = require('fs');
 
 // مجلد البيانات: داخل AppData عند الاستخدام المُغلَّف، وإلى جانب المشروع أثناء التطوير
+// مع ترحيل تلقائي من اسم الإصدار السابق (homina) إلى الاسم الجديد (homita)
 if (app.isPackaged) {
-  process.env.HOMINA_DATA = path.join(app.getPath('userData'), 'data');
+  const appData = app.getPath('appData');
+  const userData = path.join(appData, 'homita');
+  const legacy = path.join(appData, 'homina');
+  if (!fs.existsSync(userData) && fs.existsSync(legacy)) {
+    try { fs.renameSync(legacy, userData); } catch { /* ignore */ }
+  }
+  app.setPath('userData', userData);
+  process.env.HOMINA_DATA = path.join(userData, 'data');
 } else {
   process.env.HOMINA_DATA = process.env.HOMINA_DATA || path.join(__dirname, '..', 'data');
 }
@@ -27,7 +36,7 @@ async function createWindow(port) {
     show: false,
     backgroundColor: '#eef2f7',
     autoHideMenuBar: true,
-    title: 'هومينا Homina',
+    title: 'هوميتا Homita',
     ...(require('fs').existsSync(LOGO_PNG) ? { icon: LOGO_PNG } : {}),
     webPreferences: {
       contextIsolation: true,
@@ -66,7 +75,7 @@ app.whenReady().then(async () => {
     await createWindow(serverHandle.port);
   } catch (e) {
     console.error(e);
-    dialog.showErrorBox('هومينا', 'تعذّر تشغيل الخادم الداخلي:\n' + (e && e.message ? e.message : String(e)));
+    dialog.showErrorBox('هوميتا', 'تعذّر تشغيل الخادم الداخلي:\n' + (e && e.message ? e.message : String(e)));
     app.quit();
   }
 

@@ -84,7 +84,7 @@ function renderShell() {
       <div class="sidebar" id="sidebar">
         <div class="brand">
           <div class="logo">${LOGO}</div>
-          <div><div class="bname" style="direction:ltr">${S.lang === 'ar' ? 'هومينا Homina' : 'Homina'}</div><div class="btag">${esc(t('tagline'))}</div></div>
+          <div><div class="bname" style="direction:ltr">${S.lang === 'ar' ? 'هوميتا Homita' : 'Homita'}</div><div class="btag">${esc(t('tagline'))}</div></div>
         </div>
         <div class="nav" id="nav"></div>
       </div>

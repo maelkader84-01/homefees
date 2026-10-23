@@ -365,8 +365,20 @@ export async function pageSettings(el) {
     };
     const wipeBtn = el.querySelector('#wipeBtn');
     if (wipeBtn) wipeBtn.onclick = async () => {
+      // تأكيد مزدوج: تحذير + كتابة كلمة «مسح» يدوياً
       if (!(await confirmDlg(t('demo_clear_warn')))) return;
-      try { await api.post('/api/demo/clear'); toast(t('saved')); invalidateBuildings(); refresh(); } catch (e) { toastErr(e); }
+      const v = await formModal({
+        title: t('demo_clear'),
+        fields: [{ name: 'confirm_txt', label: t('type_wipe'), required: true, placeholder: 'مسح' }],
+        submitLabel: t('wipe_now')
+      });
+      const txt = String(v?.confirm_txt || '').trim().toLowerCase();
+      if (!v || (txt !== 'مسح' && txt !== 'delete')) { toast(t('wipe_cancelled'), 'warn'); return; }
+      try {
+        const r = await api.post('/api/demo/clear');
+        toast(t('wipe_done_backup'), 'warn');
+        invalidateBuildings(); refresh();
+      } catch (e) { toastErr(e); }
     };
     el.querySelector('#passBtn').onclick = async () => {
       const v = await formModal({

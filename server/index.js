@@ -905,8 +905,19 @@ function buildApp() {
     res.json(r);
   });
   app.post('/api/demo/clear', requireAdmin, (req, res) => {
-    const r = seedCtl.clearDemo(db);
-    res.json(r);
+    try {
+      // لا مسح دون نسخة احتياطية كاملة تُحفظ على القرص أولاً
+      const dir = path.join(path.dirname(db.DB_PATH), 'backups');
+      fs.mkdirSync(dir, { recursive: true });
+      const stamp = new Date().toISOString().slice(0, 19).replace(/[T:]/g, '-');
+      const file = path.join(dir, `before-wipe-${stamp}.db`);
+      db.run('VACUUM INTO ? ', [file]);
+      const r = seedCtl.clearDemo(db);
+      res.json({ ...r, backup: file });
+    } catch (e) {
+      console.error('[homefees] wipe failed:', e);
+      bad(res, e.key || 'wipe_failed');
+    }
   });
 
   /* --- واجهة الويب --- */
@@ -984,6 +995,11 @@ async function start({ port = 4751, dataDir, openBrowser = false, silent = false
     console.log(`[homefees] v${APP_VERSION} يعمل الآن — القاعدة: ${db.DB_PATH}`);
     console.log(`[homefees] الواجهة: http://localhost:${finalPort}`);
   }
+  // تفريغ دوري لسجل WAL إلى الملف الرئيسي — يحدّ أقصى فقدان بيانات عند أي انقطاع مفاجئ
+  try { db.run('PRAGMA wal_autocheckpoint = 64'); } catch { /* ignore */ }
+  setInterval(() => {
+    try { db.run('PRAGMA wal_checkpoint(TRUNCATE)'); } catch { /* ignore */ }
+  }, 60_000).unref();
   if (openBrowser) {
     const { exec } = require('child_process');
     const url = `http://localhost:${finalPort}`;

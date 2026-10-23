@@ -17,10 +17,11 @@ function mulberry32(seed) {
 
 function clearDemo(db) {
   db.withTransaction(() => {
-    for (const t of ['users', 'payments', 'invoices', 'misc_income', 'expenses', 'reminders', 'rates', 'residents', 'units', 'buildings'])
+    // ملاحظة: users تبقى — لا يُحذف حساب المدير أو السكان أبداً بإزالة الأعمال فقط
+    for (const t of ['payments', 'invoices', 'misc_income', 'expenses', 'reminders', 'rates', 'residents', 'units', 'buildings'])
       db.run(`DELETE FROM ${t} WHERE 1=1`);
   });
-  console.log('[homefees] تم مسح جميع البيانات (المستخدمون والفئات والإعدادات بقيت)');
+  console.log('[homefees] تم مسح جميع البيانات (المستخدمون والإعدادات بقوا)');
   return { ok: true };
 }
 

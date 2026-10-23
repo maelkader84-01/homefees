@@ -1,0 +1,17 @@
+# لا ترفع إلى GitHub: البيانات والاعتماديات والمخرجات المبنية
+node_modules/
+dist/
+data/
+*.db
+*.db-wal
+*.db-shm
+*.log
+backups/
+.env
+.DS_Store
+Thumbs.db
+
+# أدوات ثنائية محمّلة (لا تُنشر)
+tools/git/
+tools/bin/*.exe
+tools/bin/tunnel.log

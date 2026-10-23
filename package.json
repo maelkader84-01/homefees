@@ -1,0 +1,29 @@
+{
+  "name": "homina",
+  "productName": "Homina",
+  "version": "1.0.0",
+  "description": "هومينا — إدارة رسوم المبنى والمصروفات وسجل السكان والتقارير | Building fees, expenses, residents & reports",
+  "license": "MIT",
+  "private": true,
+  "main": "electron/main.js",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "start": "node server/index.js --open",
+    "server": "node server/index.js",
+    "desktop": "electron .",
+    "seed": "node server/seed.js --demo",
+    "dist:portable": "electron-builder --win portable --x64",
+    "dist:installer": "electron-builder --win nsis --x64",
+    "icon": "node tools/make-icon.js"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "sql.js": "^1.13.0"
+  },
+  "devDependencies": {
+    "electron": "^39.8.10",
+    "electron-builder": "^26.15.3"
+  }
+}

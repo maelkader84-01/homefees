@@ -1,0 +1,23 @@
+appId: com.homina.app
+productName: Homina
+directories:
+  output: dist
+  buildResources: build
+files:
+  - electron/**/*
+  - server/**/*
+  - web/**/*
+  - node_modules/**/*
+  - package.json
+  - "!web/pages*.js.map"
+  - "!data/**"
+  - "!dist/**"
+  - "!**/*.log"
+asar: true
+compression: normal
+win:
+  icon: build/icon.ico
+  target:
+    - target: portable
+      arch: [x64]
+  artifactName: Homina-Portable-${version}.exe

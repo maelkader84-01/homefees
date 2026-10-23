@@ -1,0 +1,28 @@
+# إعداد Fly.io — النشر السحابي 24/7
+# 1) في قب عملة: fly launch (سيقرأ هذا الملف)
+# 2) fly volumes create homina-data 1 --region fra
+# 3) fly deploy
+app = "homina"
+primary_region = "fra"
+
+[build]
+
+[env]
+  PORT = "4751"
+  HOMINA_DATA = "/data"
+
+[http_service]
+  internal_port = 4751
+  force_https = true
+  auto_stop_machines = "suspend"
+  auto_start_machines = true
+  min_machines_running = 1
+
+[[vm]]
+  memory = "512mb"
+  cpu_kind = "shared"
+  cpus = 1
+
+[mounts]
+  source = "homina-data"
+  destination = "/data"

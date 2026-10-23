@@ -1,0 +1,18 @@
+# إعداد Render.com (مجاني بقيود: القرص مؤقت على الخطة المجانية)
+# استخدم الخطة المدفوعة أو Scale من نوع persistent disk للاحتفاظ بالبيانات
+services:
+  - type: web
+    name: homina
+    runtime: node
+    plan: starter
+    buildCommand: npm ci --omit=dev
+    startCommand: node server/index.js
+    envVars:
+      - key: PORT
+        value: 4751
+      - key: HOMINA_DATA
+        value: /var/data
+    disk:
+      name: homina-data
+      mountPath: /var/data
+      sizeGB: 1

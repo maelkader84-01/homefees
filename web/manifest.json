@@ -1,7 +1,7 @@
 {
-  "name": "هوميتا — إدارة المباني",
-  "short_name": "هوميتا",
-  "description": "رسوم المباني والمصروفات وكشوف حساب السكان — Homita building dues manager",
+  "name": "هوم فيز — إدارة المباني",
+  "short_name": "هوم فيز",
+  "description": "رسوم المباني والمصروفات وكشوف حساب السكان — HomeFees building dues manager",
   "lang": "ar",
   "dir": "rtl",
   "start_url": "/",

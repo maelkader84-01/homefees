@@ -84,7 +84,7 @@ function renderShell() {
       <div class="sidebar" id="sidebar">
         <div class="brand">
           <div class="logo">${LOGO}</div>
-          <div><div class="bname" style="direction:ltr">${S.lang === 'ar' ? 'هوميتا Homita' : 'Homita'}</div><div class="btag">${esc(t('tagline'))}</div></div>
+          <div><div class="bname" style="direction:ltr">${S.lang === 'ar' ? 'هوم فيز HomeFees' : 'HomeFees'}</div><div class="btag">${esc(t('tagline'))}</div></div>
         </div>
         <div class="nav" id="nav"></div>
       </div>
@@ -234,6 +234,12 @@ async function boot() {
     return;
   }
   renderShellDone = false;
+  // بعد الدخول: لا نبقى على صفحة الدخول — نوجه حسب الصلاحية (ساكن → كشف حسابي)
+  const cur = location.hash.replace(/^#\//, '');
+  if (!cur || cur === 'login') {
+    location.hash = S.user.role === 'resident' ? '#/myaccount' : '#/dashboard';
+    return;
+  }
   route(true);
 }
 

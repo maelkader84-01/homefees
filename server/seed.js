@@ -20,7 +20,7 @@ function clearDemo(db) {
     for (const t of ['users', 'payments', 'invoices', 'misc_income', 'expenses', 'reminders', 'rates', 'residents', 'units', 'buildings'])
       db.run(`DELETE FROM ${t} WHERE 1=1`);
   });
-  console.log('[homina] تم مسح جميع البيانات (المستخدمون والفئات والإعدادات بقيت)');
+  console.log('[homefees] تم مسح جميع البيانات (المستخدمون والفئات والإعدادات بقيت)');
   return { ok: true };
 }
 
@@ -177,7 +177,7 @@ function seedDemo(db, logicRef, { clear = true } = {}) {
     payments: Number(db.get('SELECT COUNT(*) AS c FROM payments').c),
     expenses: Number(db.get('SELECT COUNT(*) AS c FROM expenses').c)
   };
-  console.log('[homina] بيانات تجريبية جاهزة:', JSON.stringify(counts));
+  console.log('[homefees] بيانات تجريبية جاهزة:', JSON.stringify(counts));
   return counts;
 }
 

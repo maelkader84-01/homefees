@@ -178,7 +178,7 @@ function applySchema(db) {
   const defaults = {
     currency: 'ج.م',
     min_fund: '0',
-    org_name: 'هوميتا',
+    org_name: 'هوم فيز',
     lang_default: 'ar'
   };
   for (const [k, v] of Object.entries(defaults)) {

@@ -1,11 +1,11 @@
-# هوميتا Homita — إدارة المباني بسهولة
+# هوم فيز HomeFees — إدارة المباني بسهولة
 
 تطبيق متكامل لإدارة الرسوم الشهرية والمصروفات وسجل السكان والتقارير للمباني السكنية واتحادات الملاك والمجمعات السكنية — بواجهة عربية/إنجليزية وقاعدة بيانات محلية SQLite.
 
 ## المحتويات
-- **تطبيق سطح مكتب**: ملف محمول واحد `Homita-Portable-1.0.0.exe` يعمل مباشرة دون تنصيب.
+- **تطبيق سطح مكتب**: ملف محمول واحد `HomeFees-Portable-1.0.0.exe` يعمل مباشرة دون تنصيب.
 - **موقع إلكتروني / مشاركة عبر الشبكة**: نفس الخادم يخدم كل المستخدمين في المتصفح.
-- **قاعدة بيانات SQLite**: ملف واحد `Homita.db` سهل النسخ الاحتياطي.
+- **قاعدة بيانات SQLite**: ملف واحد `HomeFees.db` سهل النسخ الاحتياطي.
 
 ## المميزات
 - ✅ إدارة **عدة مبانٍ** مع شقق ومحال ومواقف ووحدات بأنواع مختلفة
@@ -24,9 +24,9 @@
 - ✅ **نسخ احتياطي/استرجاع** من ملف واحد
 
 ## التشغيل السريع — النسخة المحمولة (سطح المكتب)
-1. شغّل `dist/Homita-Portable-1.0.0.exe` — يفتح نافذة التطبيق مع خادم محلي.
+1. شغّل `dist/HomeFees-Portable-1.0.0.exe` — يفتح نافذة التطبيق مع خادم محلي.
 2. سجّل الدخول: **admin / admin123** (غيّر كلمة المرور من «المستخدمون»).
-- قاعدة البيانات تُحفظ تلقائياً في: `%APPDATA%\Homita\data\Homita.db`
+- قاعدة البيانات تُحفظ تلقائياً في: `%APPDATA%\HomeFees\data\HomeFees.db`
 - انسخ الملف احتياطياً من زر «تنزيل نسخة احتياطية» في الإعدادات.
 
 ## التشغيل السريع — وضع الويب (مشاركة)
@@ -39,7 +39,7 @@ npm start
 - يفتح الخادم على المنفذ **4751** ويفتح المتصفح تلقائياً.
 - **مشاركة لزملائك على الشبكة المحلية**: أعطهم العنوان `http:// عنوان-جهازك :4751` وافتح المنفذ في جدار الحماية:
   ```bat
-  netsh advfirewall firewall add rule name="Homita" dir=in action=allow protocol=TCP localport=4751
+  netsh advfirewall firewall add rule name="HomeFees" dir=in action=allow protocol=TCP localport=4751
   ```
 - **مشاركة عبر الإنترنت** (خيار أ): استخدم نفق https مثل `cloudflared tunnel --url http://localhost:4751` ثم شارك الرابط.
 - **استضافة دائمة** (خيار ب): انسخ مجلد المشروع إلى VPS ونفّذ `node server/index.js` مع `NODE_ENV`، أو عبر Docker/PM2.
@@ -72,10 +72,10 @@ npm start
    - كشف حسابه: الرسوم والمسدد والمتبقي، قابل للطباعة.
 4. خادم يعمل 24/7 دون جهازك؟ ملفات النشر السحابي جاهزة:
    - `Dockerfile` (أي مستضيف يدعم Docker/Fly.io) + `fly.toml` + `render.yaml`.
-   - على Fly.io: `fly launch` ثم `fly volumes create homina-data 1` ثم `fly deploy` — القاعدة على قرص دائم.
+   - على Fly.io: `fly launch` ثم `fly volumes create homefees-data 1` ثم `fly deploy` — القاعدة على قرص دائم.
 5. الكود جاهز للرفع على GitHub: مستودع محلي مهيأ (متضمن .gitignore يستبعد القاعدة/النسخ المبنية) — أنشئ مستودعاً فارغاً على GitHub ثم:
    ```
-   tools\git\cmd\git.exe remote add origin https://github.com/USER/Homita.git
+   tools\git\cmd\git.exe remote add origin https://github.com/USER/HomeFees.git
    tools\git\cmd\git.exe push -u origin master
    ```
 
@@ -97,19 +97,19 @@ data/     قاعدة البيانات المحلية أثناء التطوير
 
 ## الحلول الشائعة
 - **المنفذ مشغول؟** الخادم ينتقل تلقائياً للمنفذ التالي (4752، 4753 …) ويعرض العنوان في سجل الطرفية.
-- **أين تُحفَظ قاعدة البيانات؟** في `%APPDATA%\Homita\data` للنسخة المحمولة، أو بجانب المشروع في مجلد `data/` في وضع التطوير. يمكن استخدام متغير البيئة `HOMINA_DATA` لمجلد مخصّص أو `HOMINA_DB` لمسار ملف كامل.
-- **لا تضغط أو تنقل ملف `Homita.db` ببرنامج خارجي (WinRAR/7-Zip) أثناء عمل الخادم** — سيظهر «الملف مستخدم من عملية أخرى»، وقد تكون النسخة ناقصة بسبب ملفات `-wal/-shm` المؤقتة. البدائل الصحيحة:
-  1. للاحتياط: شغّل `نسخة احتياطية الآن.bat` — تنشئ نسخة متسقة كاملة (VACUUM INTO) حتى **أثناء تشغيل الخادم** وتضعها في مجلد «هوميتا-نسخ-احتياطية» على سطح المكتب، أو استخدم زر «تنزيل نسخة احتياطية» من شاشة الإعدادات.
+- **أين تُحفَظ قاعدة البيانات؟** في `%APPDATA%\HomeFees\data` للنسخة المحمولة، أو بجانب المشروع في مجلد `data/` في وضع التطوير. يمكن استخدام متغير البيئة `HOMINA_DATA` لمجلد مخصّص أو `HOMINA_DB` لمسار ملف كامل.
+- **لا تضغط أو تنقل ملف `HomeFees.db` ببرنامج خارجي (WinRAR/7-Zip) أثناء عمل الخادم** — سيظهر «الملف مستخدم من عملية أخرى»، وقد تكون النسخة ناقصة بسبب ملفات `-wal/-shm` المؤقتة. البدائل الصحيحة:
+  1. للاحتياط: شغّل `نسخة احتياطية الآن.bat` — تنشئ نسخة متسقة كاملة (VACUUM INTO) حتى **أثناء تشغيل الخادم** وتضعها في مجلد «هوم فيز-نسخ-احتياطية» على سطح المكتب، أو استخدم زر «تنزيل نسخة احتياطية» من شاشة الإعدادات.
   2. للنقل/الضغط اليدوي: شغّل `إيقاف الخادم.bat` أولاً — يوقف الخادم ويفكّ القفل فوراً، وبعدها انقل أو اضغط الملفات بحرية (تُدمج بيانات `-wal/-shm` وتختفي هذه الملفات). ثم شغّل الخادم من جديد متى شئت.
 - Windows PowerShell حظر السكربتات؟ استخدم `npm.cmd` بدلاً من `npm`.
 
 ---
 
-# Homita — English summary
+# HomeFees — English summary
 
-Homita is an all-in-one building management app for residential buildings, homeowners' unions and complexes: monthly dues, expenses, residents registry, balances and reports — bilingual (Arabic/English) with a single local SQLite database.
+HomeFees is an all-in-one building management app for residential buildings, homeowners' unions and complexes: monthly dues, expenses, residents registry, balances and reports — bilingual (Arabic/English) with a single local SQLite database.
 
-- **Portable desktop**: run `dist/Homita-Portable-1.0.0.exe` (built-in local server, data in `%APPDATA%\Homita\data`).
+- **Portable desktop**: run `dist/HomeFees-Portable-1.0.0.exe` (built-in local server, data in `%APPDATA%\HomeFees\data`).
 - **Web mode**: `npm install && npm start` → http://localhost:4751 (share your machine's IP with users on the LAN, or tunnel with cloudflared for internet access).
 - **Default login**: admin / admin123 (change it after first login).
 - Unit balance = dues invoiced + allocated expense share − payments. All amounts are stored as integer minor units (cents).

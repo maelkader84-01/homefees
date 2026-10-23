@@ -1,20 +1,24 @@
 'use strict';
 /**
  * main.js — نافذة سطح المكتب (Electron)
- * يشغّل خادم هوميتا محلياً ويفتح النافذة عليه.
+ * يشغّل خادم هوم فيز محلياً ويفتح النافذة عليه.
  */
 const { app, BrowserWindow, Menu, shell, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
 // مجلد البيانات: داخل AppData عند الاستخدام المُغلَّف، وإلى جانب المشروع أثناء التطوير
-// مع ترحيل تلقائي من اسم الإصدار السابق (homina) إلى الاسم الجديد (homita)
+// مع ترحيل تلقائي من الأسماء السابقة (homina / homita) إلى الاسم الجديد (homefees)
 if (app.isPackaged) {
   const appData = app.getPath('appData');
-  const userData = path.join(appData, 'homita');
-  const legacy = path.join(appData, 'homina');
-  if (!fs.existsSync(userData) && fs.existsSync(legacy)) {
-    try { fs.renameSync(legacy, userData); } catch { /* ignore */ }
+  const userData = path.join(appData, 'homefees');
+  const legacyPaths = ['homita', 'homina'].map(n => path.join(appData, n));
+  if (!fs.existsSync(userData)) {
+    for (const legacy of legacyPaths) {
+      if (fs.existsSync(legacy)) {
+        try { fs.renameSync(legacy, userData); break; } catch { /* ignore */ }
+      }
+    }
   }
   app.setPath('userData', userData);
   process.env.HOMINA_DATA = path.join(userData, 'data');
@@ -36,7 +40,7 @@ async function createWindow(port) {
     show: false,
     backgroundColor: '#eef2f7',
     autoHideMenuBar: true,
-    title: 'هوميتا Homita',
+    title: 'هوم فيز HomeFees',
     ...(require('fs').existsSync(LOGO_PNG) ? { icon: LOGO_PNG } : {}),
     webPreferences: {
       contextIsolation: true,
@@ -75,7 +79,7 @@ app.whenReady().then(async () => {
     await createWindow(serverHandle.port);
   } catch (e) {
     console.error(e);
-    dialog.showErrorBox('هوميتا', 'تعذّر تشغيل الخادم الداخلي:\n' + (e && e.message ? e.message : String(e)));
+    dialog.showErrorBox('هوم فيز', 'تعذّر تشغيل الخادم الداخلي:\n' + (e && e.message ? e.message : String(e)));
     app.quit();
   }
 

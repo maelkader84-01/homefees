@@ -1,8 +1,8 @@
 # إعداد Fly.io — النشر السحابي 24/7
 # 1) في قب عملة: fly launch (سيقرأ هذا الملف)
-# 2) fly volumes create homina-data 1 --region fra
+# 2) fly volumes create homefees-data 1 --region fra
 # 3) fly deploy
-app = "homina"
+app = "homefees"
 primary_region = "fra"
 
 [build]
@@ -24,5 +24,5 @@ primary_region = "fra"
   cpus = 1
 
 [mounts]
-  source = "homina-data"
+  source = "homefees-data"
   destination = "/data"

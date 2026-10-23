@@ -1,8 +1,8 @@
 {
-  "name": "homina",
-  "productName": "Homita",
+  "name": "homefees",
+  "productName": "HomeFees",
   "version": "1.0.0",
-  "description": "هوميتا — إدارة رسوم المبنى والمصروفات وسجل السكان والتقارير | Building fees, expenses, residents & reports",
+  "description": "هوم فيز — إدارة رسوم المبنى والمصروفات وسجل السكان والتقارير | Building fees, expenses, residents & reports",
   "license": "MIT",
   "private": true,
   "main": "electron/main.js",

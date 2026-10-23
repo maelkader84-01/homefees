@@ -1,5 +1,5 @@
-appId: com.homita.app
-productName: Homita
+appId: com.homefees.app
+productName: HomeFees
 directories:
   output: dist
   buildResources: build
@@ -20,4 +20,4 @@ win:
   target:
     - target: portable
       arch: [x64]
-  artifactName: Homita-Portable-${version}.exe
+  artifactName: HomeFees-Portable-${version}.exe

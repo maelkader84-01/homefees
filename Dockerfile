@@ -1,6 +1,6 @@
 # هومينا — صورة Docker للنشر السحابي
-# البناء:   docker build -t homina .
-# التشغيل:  docker run -p 4751:4751 -v homina-data:/app/data homina
+# البناء:   docker build -t homefees .
+# التشغيل:  docker run -p 4751:4751 -v homefees-data:/app/data homefees
 FROM node:22-bookworm-slim
 WORKDIR /app
 ENV NODE_ENV=production

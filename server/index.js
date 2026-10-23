@@ -3,7 +3,7 @@
  * index.js — خادم هومينا (API + واجهة الويب)
  * تشغيل:  node server/index.js            (بدون فتح المتصفح)
  *          node server/index.js --open    (يفتح المتصفح تلقائياً)
- * كوحدة:   const homina = require('./index'); homina.start({ port, dataDir })
+ * كوحدة:   const homefees = require('./index'); homefees.start({ port, dataDir })
  */
 const express = require('express');
 const fs = require('fs');
@@ -59,7 +59,7 @@ function ensureAdmin() {
   if (!c) {
     db.run('INSERT INTO users (username, password_hash, name, role) VALUES (?,?,?,?)',
       ['admin', auth.hashPassword('admin123'), 'Administrator', 'admin']);
-    console.log('[homina] تم إنشاء مستخدم افتراضي: admin / admin123 (غيّر كلمة المرور!)');
+    console.log('[homefees] تم إنشاء مستخدم افتراضي: admin / admin123 (غيّر كلمة المرور!)');
   }
 }
 
@@ -73,7 +73,7 @@ function buildApp() {
   const WEB_DIR = path.join(__dirname, '..', 'web');
 
   /* --- عام --- */
-  app.get('/api/meta', (req, res) => res.json({ app: 'homina', version: APP_VERSION }));
+  app.get('/api/meta', (req, res) => res.json({ app: 'homefees', version: APP_VERSION }));
 
   app.post('/api/auth/login', (req, res) => {
     try {
@@ -201,7 +201,7 @@ function buildApp() {
   app.get('/api/backup', requireAdmin, (req, res) => {
     const buf = db.exportDb();
     res.setHeader('Content-Type', 'application/vnd.sqlite3');
-    res.setHeader('Content-Disposition', `attachment; filename="homina-backup-${isoDate()}.db"`);
+    res.setHeader('Content-Disposition', `attachment; filename="homefees-backup-${isoDate()}.db"`);
     res.send(buf);
   });
   app.post('/api/restore',
@@ -920,7 +920,7 @@ function buildApp() {
 
   /* معالج رجوع الأخطاء */
   app.use((err, req, res, next) => {
-    console.error('[homina] error:', err);
+    console.error('[homefees] error:', err);
     res.status(500).json({ error: 'server_error' });
   });
 
@@ -981,8 +981,8 @@ async function start({ port = 4751, dataDir, openBrowser = false, silent = false
     server.once('error', reject);
   });
   if (!silent) {
-    console.log(`[homina] v${APP_VERSION} يعمل الآن — القاعدة: ${db.DB_PATH}`);
-    console.log(`[homina] الواجهة: http://localhost:${finalPort}`);
+    console.log(`[homefees] v${APP_VERSION} يعمل الآن — القاعدة: ${db.DB_PATH}`);
+    console.log(`[homefees] الواجهة: http://localhost:${finalPort}`);
   }
   if (openBrowser) {
     const { exec } = require('child_process');

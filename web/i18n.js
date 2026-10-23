@@ -2,7 +2,7 @@
 /* i18n.js — الترجمة (عربي/إنجليزي) + تنسيق الأرقام والتواريخ */
 
 const AR = {
-  app_name: 'هوميتا', tagline: 'إدارة المباني بسهولة',
+  app_name: 'هوم فيز', tagline: 'إدارة المباني بسهولة',
   lang_name: 'العربية', switch_lang: 'English',
   // تنقّل
   nav_sec_main: 'الرئيسية', nav_sec_money: 'الحسابات', nav_sec_people: 'السكان', nav_sec_admin: 'الإدارة',
@@ -114,7 +114,7 @@ const AR = {
   restore_warn: 'الاسترجاع يستبدل القاعدة الحالية بالكامل! نُحفظ نسخة أمان تلقائياً. متابعة؟',
   demo_clear: 'مسح جميع البيانات (الأبنية والمالية)', demo_clear_warn: 'سيتم حذف كل المباني والسكان والحركات نهائياً. متابعة؟',
   saved: 'تم الحفظ', lang_default: 'اللغة الافتراضية',
-  share_note_web: 'خادم هوميتا يعمل محلياً على المنفذ',
+  share_note_web: 'خادم هوم فيز يعمل محلياً على المنفذ',
   web_share: 'للمشاركة عبر الإنترنت أو الشبكة، شارك عنوان هذا الجهاز مع المستخدمين (مثال: http://192.168.1.10:4751).',
   // رسائل خطأ
   err: 'خطأ', user_disabled: 'الحساب موقوف', unauthorized: 'انتهت الجلسة — دخِل من جديد',
@@ -133,7 +133,7 @@ const AR = {
 };
 
 const EN = {
-  app_name: 'Homita', tagline: 'Building management made simple',
+  app_name: 'HomeFees', tagline: 'Building management made simple',
   lang_name: 'العربية', switch_lang: 'العربية',
   nav_sec_main: 'Main', nav_sec_money: 'Finance', nav_sec_people: 'People', nav_sec_admin: 'Admin',
   nav_dashboard: 'Dashboard', nav_buildings: 'Buildings', nav_units: 'Units & Spaces', nav_residents: 'Residents',
@@ -229,7 +229,7 @@ const EN = {
   restore_warn: 'Restoring fully replaces the current database! An automatic safety copy is kept. Continue?',
   demo_clear: 'Erase all data (buildings & finance)', demo_clear_warn: 'All buildings, residents and transactions will be deleted permanently. Continue?',
   saved: 'Saved', lang_default: 'Default language',
-  share_note_web: 'Homita server runs locally on port',
+  share_note_web: 'HomeFees server runs locally on port',
   web_share: 'To share over the network/internet, give users this machine\'s address (e.g. http://192.168.1.10:4751).',
   err: 'Error', user_disabled: 'Account disabled', unauthorized: 'Session expired — sign in again',
   forbidden_admin: 'Administrator access only', bad_building: 'Building not found', bad_unit: 'Unit not found',

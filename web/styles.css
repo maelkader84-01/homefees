@@ -202,6 +202,7 @@ table.tbl{width:100%;border-collapse:collapse;font-size:13.5px}
   .tbl tr td:last-child{border-bottom:0}
   .tbl td .badge{margin-inline-start:0}
   .tbl .actions{flex-wrap:wrap;justify-content:center;gap:6px}
+}
 /* شاشات ضيقة جدًا: بطاقة مفردة كي لا تُختنق */
 @media screen and (max-width: 360px){
   .tbl tbody{grid-template-columns:1fr}

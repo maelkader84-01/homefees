@@ -1003,7 +1003,8 @@ function findFreePort(startPort) {
         tryPort(p + 1, attempts + 1);
       });
       srv.once('listening', () => srv.close(() => resolve(p)));
-      srv.listen(p, '127.0.0.1');
+      // الفحص بـ 0.0.0.0 مطابق للربط الحقيقي — على ويندوز ربط 127.0.0.1 ينجح خداعياً فوق منفذ محجوز
+      srv.listen(p, '0.0.0.0');
     };
     tryPort(startPort, 0);
   });

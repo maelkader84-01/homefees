@@ -102,7 +102,7 @@ function unitBalances(db, buildingId) {
             COALESCE((SELECT phone FROM residents r WHERE r.unit_id = u.id AND r.active = 1 LIMIT 1), '') AS resident_phone
      FROM units u JOIN buildings b ON b.id = u.building_id
      ${buildingId ? 'WHERE u.building_id = ?' : ''}
-     ORDER BY b.name, u.code`, p);
+     ORDER BY b.name, LENGTH(u.code), u.code`, p);
 
   const invoiced = {};
   for (const r of db.all(

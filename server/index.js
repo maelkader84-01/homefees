@@ -321,7 +321,7 @@ function buildApp() {
         (SELECT r.name FROM residents r WHERE r.unit_id = u.id AND r.active = 1 ORDER BY r.id DESC LIMIT 1) AS resident_name,
         (SELECT r.phone FROM residents r WHERE r.unit_id = u.id AND r.active = 1 ORDER BY r.id DESC LIMIT 1) AS resident_phone
       FROM units u JOIN buildings b ON b.id = u.building_id
-      ${where} ORDER BY b.name, u.code`, vals);
+      ${where} ORDER BY b.name, LENGTH(u.code), u.code`, vals);
     res.json(rows);
   });
   app.post('/api/units', (req, res) => {
@@ -388,7 +388,7 @@ function buildApp() {
     res.json(db.all(`
       SELECT r.*, u.code AS unit_code, u.building_id, b.name AS building_name
       FROM residents r JOIN units u ON u.id = r.unit_id JOIN buildings b ON b.id = u.building_id
-      ${where} ORDER BY b.name, u.code, r.id DESC`, vals));
+      ${where} ORDER BY b.name, LENGTH(u.code), u.code, r.id DESC`, vals));
   });
   app.post('/api/residents', (req, res) => {
     try {
@@ -535,7 +535,7 @@ function buildApp() {
         (SELECT r.name FROM residents r WHERE r.unit_id = i.unit_id AND r.active = 1 ORDER BY r.id DESC LIMIT 1) AS resident_name,
         COALESCE((SELECT SUM(amount) FROM payments p WHERE p.invoice_id = i.id), 0) AS paid_amount
       FROM invoices i JOIN units u ON u.id = i.unit_id
-      WHERE i.building_id = ? AND i.period = ? ORDER BY u.code`, [building_id, period]);
+      WHERE i.building_id = ? AND i.period = ? ORDER BY LENGTH(u.code), u.code`, [building_id, period]);
     res.json({
       generated: invoices.length > 0,
       total: invoices.reduce((s, i) => s + Number(i.amount), 0),
@@ -553,7 +553,7 @@ function buildApp() {
       SELECT i.*, u.code AS unit_code, r.name AS rate_name,
         COALESCE((SELECT SUM(amount) FROM payments p WHERE p.invoice_id = i.id), 0) AS paid_amount
       FROM invoices i JOIN units u ON u.id = i.unit_id LEFT JOIN rates r ON r.id = i.rate_id
-      ${where} ORDER BY i.period DESC, u.code LIMIT 2000`, vals));
+      ${where} ORDER BY i.period DESC, LENGTH(u.code), u.code LIMIT 2000`, vals));
   });
   app.post('/api/invoices', (req, res) => { // فاتورة مخصصة/غرامة
     try {

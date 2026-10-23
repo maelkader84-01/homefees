@@ -177,12 +177,18 @@ table.tbl{width:100%;border-collapse:collapse;font-size:13.5px}
 @media screen and (max-width: 640px){
   .tbl{display:block}
   .tbl thead{display:none}
-  .tbl tbody{display:block}
-  .tbl tr{display:block;background:var(--card);border:1px solid var(--line);border-radius:14px;margin:10px 0;padding:4px 12px;box-shadow:var(--shadow)}
+  /* سجلّان جنبًا إلى جنب في كل سطر بدل بطاقة واحدة بعرض كامل */
+  .tbl tbody{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:stretch}
+  .tbl tr{display:block;background:var(--card);border:1px solid var(--line);border-radius:14px;margin:0;padding:4px 10px;box-shadow:var(--shadow)}
   .tbl tr:nth-child(even){background:#fbfdff}
-  .tbl td{display:flex;justify-content:space-between;align-items:center;gap:10px;border:0;border-bottom:1px dashed var(--line);padding:8px 2px}
+  .tbl td{display:flex;justify-content:space-between;align-items:center;gap:10px;border:0;border-bottom:1px dashed var(--line);padding:8px 2px;font-size:13px;word-break:break-word}
   .tbl tr td:last-child{border-bottom:0}
   .tbl td .badge{margin-inline-start:0}
+  .tbl .actions{flex-direction:column;align-items:stretch;gap:6px}
+}
+/* شاشات ضيقة جدًا: بطاقة مفردة كي لا تُختنق */
+@media screen and (max-width: 360px){
+  .tbl tbody{grid-template-columns:1fr}
 }
 
 /* بطاقات الأرقام تتراص مفردة على الشاشات الأصغر لوضوح أكبر */
@@ -248,4 +254,10 @@ table.tbl{width:100%;border-collapse:collapse;font-size:13.5px}
   #toasts{bottom:calc(16px + env(safe-area-inset-bottom));left:12px;right:12px;max-width:none}
   .stat-grid{grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
   .kpi-band{grid-template-columns:repeat(2,1fr)}
+  /* بطاقة المستخدم (الاسم + زر الخروج) إلى الطرف الأيسر */
+  .topbar .userchip{margin-inline-start:auto}
+  /* خانة اختيار المبنى أكبر وأوضح على الجوال */
+  .filters{width:100%}
+  .filters .input{flex:1 1 150px;min-width:140px;min-height:46px;font-size:15.5px;max-width:none !important}
+  .filters .btn{min-height:46px}
 }

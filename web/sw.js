@@ -1,8 +1,8 @@
-/* sw.js — ذاكرة تخزين مؤقت لواجهة هومينا (PWA)
-   - API يبقى دائماً من الشبكة (بيانات حية ولا تُخزَّن)
-   - الواجهة الثابتة: أول تخزين ثم تحديث تلقائي في الخلفية */
+﻿/* sw.js â€” ط°ط§ظƒط±ط© طھط®ط²ظٹظ† ظ…ط¤ظ‚طھ ظ„ظˆط§ط¬ظ‡ط© ظ‡ظˆظ…ظٹظ†ط§ (PWA)
+   - API ظٹط¨ظ‚ظ‰ ط¯ط§ط¦ظ…ط§ظ‹ ظ…ظ† ط§ظ„ط´ط¨ظƒط© (ط¨ظٹط§ظ†ط§طھ ط­ظٹط© ظˆظ„ط§ طھظڈط®ط²ظژظ‘ظ†)
+   - ط§ظ„ظˆط§ط¬ظ‡ط© ط§ظ„ط«ط§ط¨طھط©: ط£ظˆظ„ طھط®ط²ظٹظ† ط«ظ… طھط­ط¯ظٹط« طھظ„ظ‚ط§ط¦ظٹ ظپظٹ ط§ظ„ط®ظ„ظپظٹط© */
 'use strict';
-const CACHE = 'homefees-shell-v3';
+const CACHE = 'homefees-shell-v4';
 const SHELL = [
   '/', '/index.html', '/manifest.json',
   '/styles.css', '/app.js', '/core.js', '/i18n.js',
@@ -26,12 +26,12 @@ self.addEventListener('fetch', (e) => {
   const req = e.request;
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
-  if (url.origin !== location.origin) return;      // خطوط غوغل وما يماثلها: الشبكة مباشرة
-  if (url.pathname.startsWith('/api/')) return;    // بيانات حية من الخادم دائماً
+  if (url.origin !== location.origin) return;      // ط®ط·ظˆط· ط؛ظˆط؛ظ„ ظˆظ…ط§ ظٹظ…ط§ط«ظ„ظ‡ط§: ط§ظ„ط´ط¨ظƒط© ظ…ط¨ط§ط´ط±ط©
+  if (url.pathname.startsWith('/api/')) return;    // ط¨ظٹط§ظ†ط§طھ ط­ظٹط© ظ…ظ† ط§ظ„ط®ط§ط¯ظ… ط¯ط§ط¦ظ…ط§ظ‹
 
   e.respondWith(
     fetch(req)
-      .then(res => { // شبكة أولاً + تحديث الكاش
+      .then(res => { // ط´ط¨ظƒط© ط£ظˆظ„ط§ظ‹ + طھط­ط¯ظٹط« ط§ظ„ظƒط§ط´
         if (res && res.ok) caches.open(CACHE).then(c => c.put(req, res.clone())).catch(() => {});
         return res.clone();
       })

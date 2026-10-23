@@ -29,8 +29,9 @@ public class MainActivity extends Activity {
         WebSettings s = web.getSettings();
         s.setJavaScriptEnabled(true);
         s.setDomStorageEnabled(true);
-        s.setLoadWithOverviewMode(true);
-        s.setUseWideViewPort(true);
+        // الالتزام بعرض الجهاز دائماً — يمنع تمدد الشاشة مع الجداول العريضة
+        s.setUseWideViewPort(false);
+        s.setLoadWithOverviewMode(false);
         web.setWebViewClient(new WebViewClient());
         setContentView(web);
 

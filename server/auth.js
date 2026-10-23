@@ -43,7 +43,7 @@ function parseToken(token) {
 }
 
 function userById(id) {
-  return db.get('SELECT id, username, name, role, unit_id, active FROM users WHERE id = ?', [id]);
+  return db.get('SELECT id, username, name, role, unit_id, can_edit, active FROM users WHERE id = ?', [id]);
 }
 
 function userByName(username) {

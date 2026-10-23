@@ -207,7 +207,7 @@ export async function pageMisc(el) {
     });
   } catch (e) { toastErr(e); }
 }
-async function miscForm(r) {
+export async function miscForm(r) {
   await buildingOptions();
   const v = await formModal({
     title: r ? t('edit') : t('new_misc'),
@@ -318,7 +318,7 @@ async function manageCategories() {
   await open();
 }
 
-async function expenseForm(r, depos) {
+export async function expenseForm(r, depos) {
   await buildingOptions();
   const v = await formModal({
     title: r ? t('edit') : t('new_expense'), wide: true,

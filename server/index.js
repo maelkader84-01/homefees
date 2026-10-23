@@ -18,16 +18,20 @@ const auth = require('./auth');
 const APP_VERSION = '1.0.0';
 
 /* ---------- صلاحيات وتحقق ---------- */
+// المسارات (الإيرادات) التي يستطيع ساكن لها صلاحية تعديل أن يضيف إليها
+const RESIDENT_EDIT_PATHS = ['/payments', '/expenses', '/misc-income'];
 function authMiddleware(req, res, next) {
   const header = req.headers.authorization || '';
   const token = header.startsWith('Bearer ') ? header.slice(7) : null;
   const uid = token && auth.parseToken(token);
   const user = uid && auth.userById(uid);
   if (!user || !user.active) return res.status(401).json({ error: 'unauthorized' });
+  const p = req.path;
   if (user.role === 'resident') {
-    const p = req.path;
     const allowed = p.startsWith('/me/') || p.startsWith('/auth/')
-      || (req.method === 'GET' && p === '/settings'); // عملة للعرض فقط
+      || (req.method === 'GET' && p === '/settings') // عملة للعرض فقط
+      // صلاحية التعديل: إضافة دفعة/مصروف/إيراد آخر لنطاق وحدته فقط
+      || (user.can_edit === 1 && req.method === 'POST' && RESIDENT_EDIT_PATHS.includes(p));
     if (!allowed) return res.status(403).json({ error: 'forbidden' });
   } else if (user.role === 'manager' && p.startsWith('/users')) {
     return res.status(403).json({ error: 'forbidden' });
@@ -118,7 +122,7 @@ function buildApp() {
 
   /* --- المستخدمون (admin) --- */
   app.get('/api/users', requireAdmin, (req, res) => {
-    res.json(db.all('SELECT id, username, name, role, unit_id, active, created_at FROM users ORDER BY id'));
+    res.json(db.all('SELECT id, username, name, role, unit_id, can_edit, active, created_at FROM users ORDER BY id'));
   });
   app.post('/api/users', requireAdmin, (req, res) => {
     try {
@@ -132,8 +136,9 @@ function buildApp() {
       const unit_id = req.body.unit_id ? toInt(req.body.unit_id) : null;
       if (unit_id && !db.get('SELECT id FROM units WHERE id = ?', [unit_id])) return bad(res, 'bad_unit');
       if (role === 'resident' && !unit_id) return bad(res, 'resident_needs_unit');
-      const r = db.run('INSERT INTO users (username, password_hash, name, role, unit_id) VALUES (?,?,?,?,?)',
-        [username, auth.hashPassword(password), name, role, unit_id]);
+      const can_edit = role === 'resident' && Number(req.body.can_edit) ? 1 : 0;
+      const r = db.run('INSERT INTO users (username, password_hash, name, role, unit_id, can_edit) VALUES (?,?,?,?,?,?)',
+        [username, auth.hashPassword(password), name, role, unit_id, can_edit]);
       res.status(201).json({ id: r.lastInsertRowid });
     } catch (e) {
       const m = String(e.message || '');
@@ -172,6 +177,12 @@ function buildApp() {
           if (admins <= 1) return bad(res, 'last_admin', 409);
         }
         fields.push('active = ?'); vals.push(Number(req.body.active) ? 1 : 0);
+      }
+      if (req.body.can_edit !== undefined) {
+        // صلاحية التعديل تخص الساكن فقط
+        const targetRole = req.body.role ?? user.role;
+        if (targetRole !== 'resident' && Number(req.body.can_edit)) return bad(res, 'can_edit_resident_only');
+        fields.push('can_edit = ?'); vals.push(Number(req.body.can_edit) ? 1 : 0);
       }
       if (fields.length) db.run(`UPDATE users SET ${fields.join(', ')} WHERE id = ?`, [...vals, id]);
       res.json({ ok: true });
@@ -624,6 +635,8 @@ function buildApp() {
     } catch (e) { bad(res, e.key || 'bad_request'); return null; }
   }
   app.post('/api/payments', (req, res) => {
+    // ساكن بصلاحية تعديل: يُقيَّد بوحدته هو فقط
+    if (req.user.role === 'resident' && req.body.unit_id !== req.user.unit_id) return bad(res, 'forbidden_unit', 403);
     const v = validPayment(req.body, res);
     if (!v) return;
     const r = db.run(`INSERT INTO payments (building_id, unit_id, invoice_id, amount, paid_on, method, receipt_no, note)
@@ -662,7 +675,12 @@ function buildApp() {
   });
   app.post('/api/misc-income', (req, res) => {
     try {
-      const building_id = numField(req.body.building_id, 'building_id');
+      let building_id = numField(req.body.building_id, 'building_id');
+      // ساكن بصلاحية تعديل: يُقيَّد بمبنى وحدته فقط
+      if (req.user.role === 'resident') {
+        const myUnit = db.get('SELECT building_id FROM units WHERE id = ?', [req.user.unit_id]);
+        if (!myUnit || myUnit.building_id !== building_id) return bad(res, 'forbidden_unit', 403);
+      }
       if (!db.get('SELECT id FROM buildings WHERE id = ?', [building_id])) return bad(res, 'bad_building');
       const r = db.run('INSERT INTO misc_income (building_id, source, amount, gained_on, note) VALUES (?,?,?,?,?)',
         [building_id, strField(req.body.source ?? '', 'source', { max: 120 }), numField(req.body.amount, 'amount'),
@@ -747,7 +765,12 @@ function buildApp() {
   });
   app.post('/api/expenses', (req, res) => {
     try {
-      const building_id = numField(req.body.building_id, 'building_id');
+      let building_id = numField(req.body.building_id, 'building_id');
+      // ساكن بصلاحية تعديل: يُقيَّد بمبنى وحدته فقط
+      if (req.user.role === 'resident') {
+        const myUnit = db.get('SELECT building_id FROM units WHERE id = ?', [req.user.unit_id]);
+        if (!myUnit || myUnit.building_id !== building_id) return bad(res, 'forbidden_unit', 403);
+      }
       if (!db.get('SELECT id FROM buildings WHERE id = ?', [building_id])) return bad(res, 'bad_building');
       const r = db.run(`INSERT INTO expenses (building_id, category_id, description, vendor, amount, spent_on, allocate, receipt_no, note)
         VALUES (?,?,?,?,?,?,?,?,?)`,
@@ -994,7 +1017,13 @@ function buildApp() {
   });
 
   /* --- واجهة الويب --- */
-  app.use(express.static(WEB_DIR));
+  app.use(express.static(WEB_DIR, {
+    // ملفات الخدمة والبيان يجب ألا تُخزَّن مؤقتًا كي تصل التحديثات للهواتف فورًا
+    setHeaders(res, filePath) {
+      if (filePath.endsWith('sw.js') || filePath.endsWith('manifest.json'))
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    }
+  }));
   app.use((req, res, next) => {
     if (req.method === 'GET' && !req.path.startsWith('/api')) {
       return res.sendFile(path.join(WEB_DIR, 'index.html'));

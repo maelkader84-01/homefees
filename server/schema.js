@@ -163,6 +163,11 @@ function applySchema(db) {
   if (!rateCols.includes('dis_amount')) {
     db.run('ALTER TABLE rates ADD COLUMN dis_amount INTEGER DEFAULT NULL');
   }
+  // صلاحيات الساكن: السماح له بتسجيل دفعات/مصروفات واجهادات (مطال عُرفيًا بالـ0)
+  const userCols = db.all("PRAGMA table_info(users)").map(c => c.name);
+  if (!userCols.includes('can_edit')) {
+    db.run('ALTER TABLE users ADD COLUMN can_edit INTEGER NOT NULL DEFAULT 0');
+  }
   // فئات مصروفات افتراضية
   const catCount = db.get('SELECT COUNT(*) AS c FROM expense_categories').c;
   if (!catCount) {

@@ -2,7 +2,7 @@
 /* pages3.js — التقارير + كشوف + المستخدمون + الإعدادات + الدخول + كشف الساكن */
 import { S, api, h, esc, t, icon, fmtMoney, fmtNum, fmtDate, fmtMonth, toast, toastErr, confirmDlg, formModal, table, badge, barChart, donut, scopeQ, clearSession, downloadCSV, applyLangUI } from './core.js';
 import { spin, refresh, buildingOptions, invalidateBuildings } from './pages1.js';
-import { quickPayDialog } from './pages2.js';
+import { quickPayDialog, expenseForm, miscForm } from './pages2.js';
 
 const todayISO = () => {
   const d = new Date();
@@ -193,7 +193,24 @@ export async function pageReports(el, tab = 'summary') {
   } catch (e) { toastErr(e); }
 }
 
-/* ============ كشف وحدة (HTML) ============ */
+/* أزرار تسجيل حركات للساكن صاحب صلاحية التعديل (تُقيَّد بوحدته في الخادم) */
+function bindResidentActions(el) {
+  if (!S.user.can_edit) return;
+  const ownUnit = async () => {
+    const units = await api.get('/api/units');
+    return units.find(x => String(x.id) === String(S.user.unit_id));
+  };
+  el.querySelector('[data-me-pay]')?.addEventListener('click', async () => {
+    const u = await ownUnit();
+    if (!u) return toast(t('no_unit_linked'), 'err');
+    quickPayDialog(u.building_name + ' / ' + u.code, u.id, 0, '');
+  });
+  el.querySelector('[data-me-exp]')?.addEventListener('click', async () => {
+    const cats = await api.get('/api/expense-categories');
+    expenseForm(null, cats);
+  });
+  el.querySelector('[data-me-misc]')?.addEventListener('click', () => miscForm(null));
+}
 export function statementHtml(st, { printable = true } = {}) {
   const T = st.totals;
   const ledgerRows = st.ledger.map(row => {
@@ -248,7 +265,7 @@ export async function pageUsers(el) {
       rows: users, empty: t('none_yet'), cols: [
         { label: t('username'), get: r => `<b>${esc(r.username)}</b>` },
         { label: t('name'), get: r => esc(r.name) },
-        { label: t('role'), get: r => roleBadge(r.role) },
+        { label: t('role'), get: r => roleBadge(r.role) + (r.role === 'resident' ? ` <span class="badge ${r.can_edit ? 'ok' : 'soft'}" style="margin-inline-start:4px">${esc(r.can_edit ? t('perm_canedit') : t('perm_viewonly'))}</span>` : '') },
         { label: t('linked_unit'), get: r => { if (!r.unit_id) return '—'; const u = units.find(x => String(x.id) === String(r.unit_id)); return u ? esc(u.code) : '—'; } },
         { label: t('status'), get: r => badge(r.active ? t('active') : t('inactive'), r.active ? 'ok' : 'soft') },
         { label: t('actions'), get: r => `<div class="actions">
@@ -288,7 +305,8 @@ async function userForm(u, units) {
         { value: 'admin', label: t('role_admin') }, { value: 'manager', label: t('role_manager') },
         { value: 'resident', label: t('role_resident') }], value: u?.role || 'manager' },
       { name: 'unit_id', label: t('linked_unit'), type: 'select', options: unitOptions, value: u?.unit_id || '' },
-      { name: 'active', label: t('active'), type: 'checkbox', value: u ? u.active : 1 }
+      { name: 'active', label: t('active'), type: 'checkbox', value: u ? u.active : 1 },
+      { name: 'can_edit', label: t('perm_edit'), type: 'checkbox', value: u ? u.can_edit : 0, hint: t('perm_edit_hint') }
     ]
   });
   if (!v) return;
@@ -407,6 +425,15 @@ export async function pageMyStatement(el) {
     const [st, fund] = await Promise.all([api.get('/api/me/statement'), api.get('/api/me/fund')]);
     const f = fund.fund || {};
     el.innerHTML = `
+      ${S.user.can_edit ? `<div class="card no-print">
+        <h3 style="margin:0 0 10px">${esc(t('perm_actions'))}</h3>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn" data-me-pay>${icon('cash')} ${esc(t('new_payment'))}</button>
+          <button class="btn" data-me-exp>${icon('money')} ${esc(t('new_expense'))}</button>
+          <button class="btn" data-me-misc>${icon('plus')} ${esc(t('nav_misc'))}</button>
+        </div>
+        <p class="hint" style="margin:8px 2px 0">${esc(t('perm_edit_hint'))}</p>
+      </div>` : ''}
       <div class="card no-print">
         <h3 style="margin:0 0 10px">${esc(t('fund_status'))}</h3>
         <div style="display:flex;gap:18px;flex-wrap:wrap">
@@ -437,5 +464,6 @@ export async function pageMyStatement(el) {
         { label: t('paid'), cls: 'num', get: r => r.type === 'invoice' ? esc(fmtMoney(Number(r.paid))) : '—' }
       ]
     })}</div>`;
+    bindResidentActions(el);
   } catch (e) { toastErr(e); }
 }

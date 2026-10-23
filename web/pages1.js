@@ -225,6 +225,9 @@ export async function pageUnits(el) {
           { label: t('area'), cls: 'num', get: r => r.area ? fmtNum(r.area, 1) : '—' },
           { label: t('shares'), cls: 'num', get: r => fmtNum(r.shares) },
           { label: t('curr_resident'), get: r => esc(r.resident_name) || '—' },
+          { label: t('occ_col'), get: r => r.resident_name
+              ? `<button class="badge-btn" data-occ="${r.id}" title="${esc(t('occ_to_vac_hint'))}">${badge(t('occ_occ'), 'ok')}</button>`
+              : `<button class="badge-btn" data-occ="${r.id}" title="${esc(t('occ_to_occ_hint'))}">${badge(t('occ_vac'), 'soft')}</button>` },
           { label: t('actions'), get: r => `<div class="actions">
             <button class="btn ghost sm" data-edit="${r.id}">${icon('edit')}</button>
             <button class="btn ghost sm" data-del="${r.id}" style="color:var(--danger)">${icon('trash')}</button></div>` }
@@ -233,6 +236,22 @@ export async function pageUnits(el) {
       </div>`;
     el.querySelector('#bfilter').onchange = e => { S.scope = e.target.value; localStorage.setItem('hm_scope', S.scope); refresh(); };
     el.querySelector('#addU').onclick = () => unitForm(null, buildings);
+    // لمسة واحدة لتغيير الإشغال: مأهولة → متروكة (إيقاف السكان) / متروكة → نموذج ساكن بالوحدة محددة
+    el.querySelectorAll('[data-occ]').forEach(b => b.onclick = async () => {
+      const u = units.find(x => String(x.id) === b.dataset.occ);
+      if (!u) return;
+      if (u.resident_name) {
+        if (!(await confirmDlg(t('occ_vacate_confirm') + ' — ' + u.building_name + ' / ' + u.code))) return;
+        try {
+          const res = await api.get('/api/residents' + (scopeQ() ? '?' + scopeQ() : ''));
+          const act = res.filter(r => r.unit_id === u.id && r.active);
+          for (const r of act) await api.patch('/api/residents/' + r.id, { active: 0 });
+          toast(t('saved')); refresh();
+        } catch (e) { toastErr(e); }
+      } else {
+        residentForm(null, units, u);
+      }
+    });
     el.querySelectorAll('[data-edit]').forEach(btn => btn.onclick = () => unitForm(units.find(u => String(u.id) === btn.dataset.edit), buildings));
     el.querySelectorAll('[data-del]').forEach(btn => btn.onclick = async () => {
       const u = units.find(x => String(x.id) === btn.dataset.del);
@@ -322,13 +341,13 @@ export async function pageResidents(el) {
     });
   } catch (e) { toastErr(e); }
 }
-async function residentForm(r, units) {
+async function residentForm(r, units, preUnit) {
   const unitOptions = units.map(u => ({ value: String(u.id), label: u.building_name + ' / ' + u.code }));
   const values = await formModal({
-    title: r ? (t('edit') + ' — ' + r.name) : t('new_resident'),
+    title: r ? (t('edit') + ' — ' + r.name) : (preUnit ? t('occ_add_resident') + ' — ' + preUnit.building_name + ' / ' + preUnit.code : t('new_resident')),
     wide: true,
     fields: [
-      { name: 'unit_id', label: t('unit'), type: 'select', options: unitOptions, value: r?.unit_id, required: true },
+      { name: 'unit_id', label: t('unit'), type: 'select', options: unitOptions, value: r?.unit_id ?? preUnit?.id, required: true },
       { name: 'name', label: t('name'), required: true, value: r?.name },
       { name: 'phone', label: t('phone'), value: r?.phone, placeholder: '05xxxxxxxx' },
       { name: 'role', label: t('rel'), type: 'select', options: [{ value: 'owner', label: t('role_owner') }, { value: 'tenant', label: t('role_tenant') }], value: r?.role || 'owner' },

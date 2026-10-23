@@ -2,7 +2,7 @@
    - API يبقى دائماً من الشبكة (بيانات حية ولا تُخزَّن)
    - الواجهة الثابتة: أول تخزين ثم تحديث تلقائي في الخلفية */
 'use strict';
-const CACHE = 'homefees-shell-v2';
+const CACHE = 'homefees-shell-v3';
 const SHELL = [
   '/', '/index.html', '/manifest.json',
   '/styles.css', '/app.js', '/core.js', '/i18n.js',

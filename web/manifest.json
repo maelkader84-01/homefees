@@ -1,0 +1,17 @@
+{
+  "name": "هومينا — إدارة المباني",
+  "short_name": "هومينا",
+  "description": "رسوم المباني والمصروفات وكشوف حساب السكان — Homina building dues manager",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#eef2f7",
+  "theme_color": "#0d9488",
+  "icons": [
+    { "src": "/assets/icon.png", "sizes": "256x256", "type": "image/png", "purpose": "any" },
+    { "src": "/assets/icon-maskable.png", "sizes": "256x256", "type": "image/png", "purpose": "maskable" }
+  ]
+}

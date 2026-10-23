@@ -104,6 +104,41 @@ function render() {
   return px;
 }
 
+/* نسخة maskable: خلفية كاملة (مربعة) + البيت مصغَّراً في المنطقة الآمنة 80% */
+function renderMaskable() {
+  const px = Buffer.alloc(SIZE * SIZE * 4);
+  const lerpF = (a, b, t) => a + (b - a) * t;
+  for (let Y = 0; Y < SIZE; Y++) {
+    for (let X = 0; X < SIZE; X++) {
+      let r = 0, g = 0, b = 0, a = 0, doors = 0;
+      for (let sy = 0; sy < SS; sy++) {
+        for (let sx = 0; sx < SS; sx++) {
+          const x = X * SS + sx + 0.5, y = Y * SS + sy + 0.5;
+          // خلفية ممتدة كاملة (بدون زوايا شفافة)
+          const tGrad = y / W;
+          let cr = Math.round(lerpF(0x16, 0x0d, tGrad));
+          let cg = Math.round(lerpF(0xb2, 0x72, tGrad));
+          let cb = Math.round(lerpF(0xa4, 0x6e, tGrad));
+          // البيت مصغَّراً 80% ومتوسَّطاً في المنطقة الآمنة
+          const u = W * 0.5 + (x - W * 0.5) / 0.8;
+          const v = W * 0.5 + (y - W * 0.5) / 0.8;
+          const house = inHouse(u, v);
+          if (house === 'door') { doors++; continue; }
+          if (house) { cr = 255; cg = 255; cb = 255; }
+          r += cr; g += cg; b += cb; a++;
+        }
+      }
+      const o = (Y * SIZE + X) * 4;
+      if (a === 0) { px[o + 3] = 0; continue; }
+      px[o] = Math.round(r / a);
+      px[o + 1] = Math.round(g / a);
+      px[o + 2] = Math.round(b / a);
+      px[o + 3] = 255;
+    }
+  }
+  return px;
+}
+
 function main() {
   const px = render();
   const png = encodePNG(px, SIZE, SIZE);
@@ -114,6 +149,9 @@ function main() {
   // نسخة إلى مجلد الويب لأجل favicon
   fs.mkdirSync(path.join(__dirname, '..', 'web', 'assets'), { recursive: true });
   fs.writeFileSync(path.join(__dirname, '..', 'web', 'assets', 'icon.png'), png);
+  // أيقونة maskable لتطبيق PWA على الموبايل
+  fs.writeFileSync(path.join(__dirname, '..', 'web', 'assets', 'icon-maskable.png'),
+    encodePNG(renderMaskable(), SIZE, SIZE));
   // ICO: حاوية تحوي سجل 256x256 مضغوطاً بـ PNG
   const hdr = Buffer.alloc(6);
   hdr.writeUInt16LE(0, 0); hdr.writeUInt16LE(1, 2); hdr.writeUInt16LE(1, 4);
